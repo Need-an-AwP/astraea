@@ -1,0 +1,17 @@
+{
+  "name": "astraea",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "wails:dev": "pnpm --filter desktop-app wails:dev",
+    "fe:dev": "pnpm --filter web-app dev"
+  },
+  "scripts-info":{
+
+  },
+  "keywords": [],
+  "author": "Need_an_AwP",
+  "license": "ISC",
+  "packageManager": "pnpm@10.30.0"
+}

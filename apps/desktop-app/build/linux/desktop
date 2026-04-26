@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Name=My Product
+Comment=A astraea-desktop application
+# The Exec line includes %u to pass the URL to the application
+Exec=/usr/local/bin/astraea-desktop.exe %u
+Terminal=false
+Type=Application
+Icon=astraea-desktop.exe
+Categories=Utility;
+StartupWMClass=astraea-desktop.exe
+
+ 

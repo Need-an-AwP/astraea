@@ -1,0 +1,7 @@
+{
+    "name": "desktop-app",
+    "scripts": {
+        "wails:dev": "wails3 dev",
+        "wails:build": "wails3 build"
+    }
+}
