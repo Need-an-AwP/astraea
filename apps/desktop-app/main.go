@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
+	"github.com/wailsapp/wails/v3/pkg/events"
 )
 
 // Wails uses Go's `embed` package to embed the frontend files into the binary.
@@ -14,6 +15,7 @@ import (
 // made available to the frontend.
 // See https://pkg.go.dev/embed for more information.
 
+// _____not_including_frontend_build_artifacts_in_dev_mode______go:embed all:../web-client/dist
 var assets embed.FS
 
 func init() {
@@ -52,7 +54,7 @@ func main() {
 	// 'Mac' options tailor the window when running on macOS.
 	// 'BackgroundColour' is the background colour of the window.
 	// 'URL' is the URL that will be loaded into the webview.
-	app.Window.NewWithOptions(application.WebviewWindowOptions{
+	window := app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Title: "Window 1",
 		Mac: application.MacWindow{
 			InvisibleTitleBarHeight: 50,
@@ -60,7 +62,11 @@ func main() {
 			TitleBar:                application.MacTitleBarHiddenInset,
 		},
 		BackgroundColour: application.NewRGB(27, 38, 54),
-		URL:              "http://localhost:9246",
+		URL:              "/",
+	})
+
+	window.OnWindowEvent(events.Common.WindowShow, func(event *application.WindowEvent) {
+		window.OpenDevTools()
 	})
 
 	// Create a goroutine that emits an event containing the current time every second.
