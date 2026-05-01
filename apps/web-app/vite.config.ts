@@ -11,7 +11,7 @@ export default defineConfig({
     react(),
     babel({ presets: [reactCompilerPreset()] }),
     tailwindcss(),
-    wails("./bindings")
+    wails(path.resolve(__dirname, "../../packages/core-desktop/bindings"))
   ],
   resolve: {
     alias: {

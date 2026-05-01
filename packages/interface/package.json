@@ -1,0 +1,20 @@
+{
+    "name": "@astraea/interface",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "exports": {
+        ".": {
+            "types": "./src/index.ts",
+            "import": "./src/index.ts",
+            "default": "./src/index.ts"
+        }
+    },
+    "description": "This @astraea/interface only provide types instead of implementations",
+    "dependencies": {
+        "zod": "^4.3.6"
+    },
+    "devDependencies": {
+        "@types/dom-mediacapture-transform": "^0.1.11"
+    }
+}

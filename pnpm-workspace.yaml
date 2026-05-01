@@ -1,5 +1,5 @@
 packages:
   - 'apps/web-app'
   - 'apps/desktop-app'
-  - 'packages/core-web'
-  - 'packages/interfaces'
+  - 'apps/playground'
+  - 'packages/*'

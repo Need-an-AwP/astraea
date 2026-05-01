@@ -1,4 +1,4 @@
-module changeme
+module astraea-desktop
 
 go 1.25
 

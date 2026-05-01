@@ -87,16 +87,15 @@ tasks:
       - task: go:mod:tidy
     sources:
       - "**/*.[jt]s"
-      - exclude: frontend/**/*
-      - frontend/bindings/**/*  # Rerun when switching between dev/production mode causes changes in output
+      - exclude: ../../packages/core-desktop/**/*
+      - ../../packages/core-desktop/bindings/**/*  # Rerun when switching between dev/production mode causes changes in output
       - "**/*.go"
       - go.mod
       - go.sum
     generates:
-      # - frontend/bindings/**/*
-      - ../web-app/bindings/**/*
+      - ../../packages/core-desktop/bindings/**/*
     cmds:
-      - wails3 generate bindings -f '{{.BUILD_FLAGS}}' -clean=true -ts -d "../web-app/bindings"
+      - wails3 generate bindings -f '{{.BUILD_FLAGS}}' -clean=true -ts -d "../../packages/core-desktop/bindings"
 
   generate:icons:
     summary: Generates Windows `.ico` and Mac `.icns` from an image; on macOS, `-iconcomposerinput appicon.icon -macassetdir darwin` also produces `Assets.car` from a `.icon` file (skipped on other platforms).

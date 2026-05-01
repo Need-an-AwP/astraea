@@ -34,7 +34,7 @@ info:
 dev_mode:
   root_path: .
   log_level: warn
-  debounce: 1000
+  debounce: 5000
   ignore:
     dir:
       - .git
