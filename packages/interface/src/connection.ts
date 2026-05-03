@@ -1,5 +1,5 @@
 import type { RTCStates } from "../types/rtc";
-import { Listener, Unsubscribe } from '../types/Listener';
+import type { Listener, Unsubscribe } from '../types/Listener';
 
 
 export const RELAY = 'relay';

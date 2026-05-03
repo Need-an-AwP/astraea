@@ -5,7 +5,8 @@ import {
     ResizablePanelGroup,
 } from "@/components/ui/resizable"
 import type { PanelImperativeHandle } from "react-resizable-panels";
-import { usePanelStore } from "@/stores/uiStore";
+import { usePanelStore } from "@/stores/ui";
+import OnlinePeersDisplay from "./OnlinePeersDisplay";
 
 export default function MainResizablePanel() {
     const setLeftPanelHandle = usePanelStore(state => state.setLeftPanelHandle);
@@ -29,7 +30,7 @@ export default function MainResizablePanel() {
                 <div className="flex flex-col h-full justify-start">
                     <ResizablePanelGroup orientation="vertical">
                         <ResizablePanel defaultSize='40%' collapsible={true}>
-                            {/* <OnlinePeersDisplay /> */}
+                            <OnlinePeersDisplay />
                         </ResizablePanel>
                         <ResizableHandle />
                         <ResizablePanel>

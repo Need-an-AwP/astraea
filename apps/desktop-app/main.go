@@ -1,6 +1,7 @@
 package main
 
 import (
+	"astraea-desktop/twn"
 	"embed"
 	_ "embed"
 	"log"
@@ -23,17 +24,30 @@ func init() {
 	// This is not required, but the binding generator will pick up registered events
 	// and provide a strongly typed JS/TS API for them.
 	application.RegisterEvent[string]("time")
+
+	
+	application.RegisterEvent[twn.Ts_notify]("ts_notify")
 }
 
 func main() {
 
 	windowActions := &WindowActions{}
 
-	app := application.New(application.Options{
+	var app *application.App
+
+	twnService := twn.NewTWNService(func(name string, data ...any) bool {
+		if app != nil {
+			return app.Event.Emit(name, data...)
+		}
+		return false
+	})
+
+	app = application.New(application.Options{
 		Name:        "astraea-desktop",
 		Description: "Astraea desktop application",
 		Services: []application.Service{
 			application.NewService(windowActions),
+			application.NewService(twnService),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),

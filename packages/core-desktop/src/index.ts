@@ -1,11 +1,20 @@
+/// <reference path="../bindings/github.com/wailsapp/wails/v3/internal/eventdata.d.ts" />
+// reference wails bindings event types
+
 import * as I from "@astraea/interface";
 import { configStore } from "./configStore";
 export * from './window';
+import { Events } from "@wailsio/runtime";
+import { StartTWN } from '../bindings/astraea-desktop/twn/twnservice';
+
 
 export class AstraeaCoreDesktop implements I.AstraeaCore {
     private static instance: AstraeaCoreDesktop | null = null;
     public readonly platform: I.Platform = 'desktop';
     private forceRelayMedia = false; // TEST FLAG: force relay keep transmitting media data
+
+    private nodeStateListener: I.Listener<I.NodeState> | null = null;
+    private tsStatusListener: I.Listener<I.TsStatus> | null = null;
 
     public static async init(config: I.CoreConfig, options?: I.AstraeaCoreOptions): Promise<I.AstraeaCore> {
         if (AstraeaCoreDesktop.instance) {
@@ -13,7 +22,7 @@ export class AstraeaCoreDesktop implements I.AstraeaCore {
             return AstraeaCoreDesktop.instance;
         }
 
-        const instance = new AstraeaCoreDesktop();
+        const instance = new AstraeaCoreDesktop(config);
 
         if (options) {
             instance.forceRelayMedia = options.forceRelayMedia ?? instance.forceRelayMedia;
@@ -25,17 +34,44 @@ export class AstraeaCoreDesktop implements I.AstraeaCore {
         return instance;
     }
 
-    private constructor() {
+    private constructor(c: I.CoreConfig) {
+        StartTWN({
+            hostName: c.hostname,
+            authKey: c.authKey,
+            dir: "/tmp",
+            isEphemeral: true,
+        })
 
+
+        Events.On("ts_notify", (e) => {
+            const { Notify: n, Status: s } = e.data;
+
+            // transform n.State (from wails bindings) to I.NodeState (from tygo generation) and pass to nodeStateListener
+            if (n.State !== null && n.State !== undefined) {
+                const stateStr = I.stateMapping[n.State] as I.NodeState;
+                this.nodeStateListener?.(stateStr);
+            }
+            // console.log("[AstraeaCoreDesktop] ts_notify notify: ", n);
+
+            // assert status (from wails bindings) as I.TsStatus (from tygo generation)
+            s && this.tsStatusListener?.(s as I.TsStatus);
+            // console.log("[AstraeaCoreDesktop] ts_notify status: ", s);
+        });
     }
 
 
     public onNodeStateChange(listener: I.Listener<I.NodeState>): I.Unsubscribe {
-        return () => { };
+        if (!this.nodeStateListener) {
+            this.nodeStateListener = listener;
+        }
+        return () => { this.nodeStateListener = null; };
     }
 
     public onTsStatusUpdate(listener: I.Listener<I.TsStatus>): I.Unsubscribe {
-        return () => { };
+        if (!this.tsStatusListener) {
+            this.tsStatusListener = listener;
+        }
+        return () => { this.tsStatusListener = null; };
     }
 
     public onError(listener: I.Listener<string>): I.Unsubscribe {

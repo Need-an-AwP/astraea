@@ -1,5 +1,7 @@
-import { AstraeaConnection } from './connection';
-import { Listener, Unsubscribe } from '../types/Listener';
+/// <reference types="dom-mediacapture-transform" />
+
+import type { AstraeaConnection } from './connection';
+import type { Listener, Unsubscribe } from '../types/Listener';
 import type { Status as TsStatus } from '../types/tailscale-ipnstate'
 
 
@@ -15,6 +17,15 @@ export type NodeState =
     | "Stopped"
     | "Starting"
     | "Running"
+export const stateMapping: Record<number, string> = {
+    0: "NoState",
+    1: "InUseOtherUser",
+    2: "NeedsLogin",
+    3: "NeedsMachineAuth",
+    4: "Stopped",
+    5: "Starting",
+    6: "Running"
+};
 
 export interface AstraeaCore {
     readonly platform: Platform;

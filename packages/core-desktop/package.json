@@ -15,8 +15,5 @@
         "@astraea/interface": "workspace:*",
         "@wailsio/runtime": "latest",
         "zustand": "^5.0.12"
-    },
-    "devDependencies": {
-        "@types/dom-mediacapture-transform": "^0.1.11"
     }
 }

@@ -53,7 +53,7 @@ windows 构建配置[build/windows/Taskfile.yml](build/windows/Taskfile.yml#L31)
       # - npm run dev -- --port {{.VITE_PORT}} --strictPort
 ```
 
-全局构建配置[build/config.yml](build/config.yml#L34)的hmr监控位置修改，仅在go代码变更时重载，debounce为5秒:
+全局构建配置[build/config.yml](build/config.yml#L34)的hmr监控位置修改，禁用所有hmr，debounce为5秒:
 ```yml
 dev_mode:
   root_path: .
@@ -70,7 +70,7 @@ dev_mode:
       - .gitignore
       - .gitkeep
     watched_extension:
-      - "*.go"
+      # - "*.go"
       # - "*.js" # Watch for changes to JS/TS files included using the //wails:include directive.
       # - "*.ts" # The frontend directory will be excluded entirely by the setting above.
 ```

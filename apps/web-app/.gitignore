@@ -25,3 +25,5 @@ dist-ssr
 
 # wails v3 auto gen
 /bindings
+
+.env

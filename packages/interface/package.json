@@ -12,9 +12,7 @@
     },
     "description": "This @astraea/interface only provide types instead of implementations",
     "dependencies": {
-        "zod": "^4.3.6"
-    },
-    "devDependencies": {
+        "zod": "^4.3.6",
         "@types/dom-mediacapture-transform": "^0.1.11"
     }
 }
