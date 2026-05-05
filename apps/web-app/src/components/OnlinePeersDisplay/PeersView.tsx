@@ -1,19 +1,31 @@
 import { memo, useMemo, useState } from 'react';
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { ContextMenu, ContextMenuContent, ContextMenuTrigger, ContextMenuCheckboxItem } from "@/components/ui/context-menu"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuRadioGroup,
+    DropdownMenuRadioItem,
+    DropdownMenuLabel,
+    DropdownMenuGroup,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Check, Menu } from 'lucide-react';
 import { useTailscaleStore, useRemoteUsersStore, useLocalUserStateStore } from '@/stores';
 import PeerItem from './PeerItem'
 
 const PeersView = () => {
     const [displayOption, setDisplayOption] = useState<"all" | "online" | "users">("all");
-    const { tailscaleStatus } = useTailscaleStore()
+    const [menuOpen, setMenuOpen] = useState(false);
+    const tsPeers = useTailscaleStore(state => state.tailscaleStatus?.Peer)
+    const tsSelf = useTailscaleStore(state => state.tailscaleStatus?.Self)
     const { peers } = useRemoteUsersStore()
     const { userState } = useLocalUserStateStore()
 
     const sortedPeerEntries = useMemo(() => {
-        if (!tailscaleStatus?.Peer) return [];
+        if (!tsPeers) return [];
 
-        return Object.entries(tailscaleStatus.Peer)
+        return Object.entries(tsPeers)
             .map(([nodekey, peer]) => ({ nodekey, peer }))
             .filter(({ peer }) => peer)
             .sort((a, b) => {
@@ -28,62 +40,76 @@ const PeersView = () => {
                 if (!aHasUser && bHasUser) return 1;
                 return 0;
             });
-    }, [tailscaleStatus?.Peer, peers]);
+    }, [tsPeers, peers]);
 
     const localPeer = useMemo(() => {
-        if (!tailscaleStatus?.Self) return null;
-        return tailscaleStatus.Self;
-    }, [tailscaleStatus?.Self]);
+        if (!tsSelf) return null;
+        return tsSelf;
+    }, [tsSelf]);
 
     return (
-        <div className="@container flex-1 overflow-auto">
-            <ContextMenu>
-                <ContextMenuTrigger>
-                    <ScrollArea className="h-full w-full">
-                        {/* local user and machine */}
-                        {localPeer && (
-                            <PeerItem
-                                key="local-self"
-                                peerStatus={localPeer}
-                                userState={userState}
-                                isSelf={true}
-                            />
-                        )}
+        <div className="group relative flex-1 overflow-auto">
+            <ScrollArea className="h-full w-full" scrollBarClassName={`opacity-0 group-hover:opacity-100 transition-opacity`}>
+                {/* local user and machine */}
+                {localPeer && (
+                    <PeerItem
+                        key="local-self"
+                        peerStatus={localPeer}
+                        userState={userState}
+                        isSelf={true}
+                    />
+                )}
 
-                        {/* remote peers */}
-                        {sortedPeerEntries.map(({ nodekey, peer }) => {
-                            if (!peer) return null;
-                            if (displayOption === "online" && !peer.Online) return null;
+                {/* remote peers */}
+                {sortedPeerEntries.map(({ nodekey, peer }) => {
+                    if (!peer) return null;
+                    if (displayOption === "online" && !peer.Online) return null;
 
-                            const peerIP = peer.TailscaleIPs[0]
-                            const userState = peers[peerIP]
-                            const connectionMode = useTailscaleStore.getState().connectionModes?.[peerIP];
-                            if (displayOption === "users" && !userState) return null;
+                    const peerIP = peer.TailscaleIPs[0]
+                    const userState = peers[peerIP]
+                    const connectionMode = useTailscaleStore.getState().connectionModes?.[peerIP];
+                    if (displayOption === "users" && !userState) return null;
 
-                            return <PeerItem
-                                key={nodekey}
-                                peerStatus={peer}
-                                userState={userState}
-                                connectionMode={connectionMode}
-                            />
-                        })}
-                    </ScrollArea>
-                </ContextMenuTrigger>
-                <ContextMenuContent>
-                    <ContextMenuCheckboxItem
-                        checked={displayOption === "online"}
-                        onCheckedChange={() => setDisplayOption(displayOption === "online" ? "all" : "online")}
-                    >
-                        Only display online machines
-                    </ContextMenuCheckboxItem>
-                    <ContextMenuCheckboxItem
-                        checked={displayOption === "users"}
-                        onCheckedChange={() => setDisplayOption(displayOption === "users" ? "all" : "users")}
-                    >
-                        Only display users
-                    </ContextMenuCheckboxItem>
-                </ContextMenuContent>
-            </ContextMenu>
+                    return <PeerItem
+                        key={nodekey}
+                        peerStatus={peer}
+                        userState={userState}
+                        connectionMode={connectionMode}
+                    />
+                })}
+            </ScrollArea>
+            <div className='absolute bottom-0 right-0'>
+                <div className={`flex gap-2 mx-2 transition-opacity ${menuOpen ? 'opacity-100' : 'group-hover:opacity-100 opacity-0'}`}>
+                    <DropdownMenu onOpenChange={setMenuOpen}>
+                        <DropdownMenuTrigger render={
+                            <Button
+                                className="cursor-pointer"
+                                variant="default"
+                                size="icon"
+                            >
+                                <Menu />
+                            </Button>
+                        } />
+                        <DropdownMenuContent className="w-64">
+                            <DropdownMenuGroup>
+                                <DropdownMenuLabel>Display Options</DropdownMenuLabel>
+                                <DropdownMenuRadioGroup value={displayOption} onValueChange={setDisplayOption}>
+                                    <DropdownMenuRadioItem value="online">
+                                        Only display online machines
+                                    </DropdownMenuRadioItem>
+                                    <DropdownMenuRadioItem value="users">
+                                        Only display users
+                                    </DropdownMenuRadioItem>
+                                    <DropdownMenuRadioItem value="all">
+                                        Display all
+                                    </DropdownMenuRadioItem>
+                                </DropdownMenuRadioGroup>
+                            </DropdownMenuGroup>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
+                </div>
+            </div>
         </div>
     )
 }

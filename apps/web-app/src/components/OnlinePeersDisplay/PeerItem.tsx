@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge";
 import { Laptop, Server, Smartphone, Globe } from 'lucide-react';
-import type {  PeerState } from "@/types"
+import type { PeerState } from "@/types"
 import type { PeerStatus } from '@astraea/interface';
 import type { connectionMode } from '@/stores';
 // import LatencyDisplay from './LatencyDisplay';
@@ -43,8 +43,8 @@ const PeerItem = ({
 
     return (
         <Dialog>
-            <DialogTrigger>
-                <div className="border rounded-md space-y-2 p-2 mb-2 mx-2 text-xs hover:bg-muted/50 cursor-pointer select-none">
+            <DialogTrigger className="w-full">
+                <div className="max-w-full border rounded-md space-y-2 p-2 mb-2 mx-2 text-xs hover:bg-muted/50 cursor-pointer select-none">
                     {user && (<>
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3 min-w-0 overflow-hidden">
@@ -171,7 +171,7 @@ const PeerItem = ({
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="text-muted-foreground">Machine ID:</span>
-                                            <span className="font-mono text-xs">{String(peer.ID).slice(0, 16)}...</span>
+                                            <span className="font-mono text-xs">{peer.ID}</span>
                                         </div>
                                         {peer.Created && (
                                             <div className="flex justify-between">

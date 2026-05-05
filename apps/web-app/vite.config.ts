@@ -4,6 +4,8 @@ import { defineConfig } from 'vite'
 import react, { reactCompilerPreset } from '@vitejs/plugin-react'
 import babel from '@rolldown/plugin-babel'
 import wails from "@wailsio/runtime/plugins/vite";
+import devtoolsJson from 'vite-plugin-devtools-json';
+
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -11,7 +13,8 @@ export default defineConfig({
     react(),
     babel({ presets: [reactCompilerPreset()] }),
     tailwindcss(),
-    wails(path.resolve(__dirname, "../../packages/core-desktop/bindings"))
+    wails(path.resolve(__dirname, "../../packages/core-desktop/bindings")),
+    devtoolsJson()
   ],
   resolve: {
     alias: {
