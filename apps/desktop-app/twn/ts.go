@@ -2,10 +2,9 @@ package twn
 
 import (
 	"context"
-	// "crypto/rand"
-
 	"fmt"
 	"log"
+	"math/rand/v2"
 
 	// "math/big"
 
@@ -13,7 +12,8 @@ import (
 	// "os/exec"
 	// "runtime"
 	// "strings"
-	// "time"
+	"time"
+	"twncore"
 
 	"tailscale.com/ipn"
 	"tailscale.com/ipn/ipnstate"
@@ -27,7 +27,7 @@ func (n *tsNode) StartNode() {
 		os.Setenv("TSNET_FORCE_LOGIN", "1")
 		// this can force the node to re-login every time,
 		// ephemeral mode will remove the node in a short time after the node goes offline
-		n.Srv = &tsnet.Server{
+		n.srv = &tsnet.Server{
 			// Ephemeral: true, // only effect when using account login, authkey's behavior depends on its properties
 			Hostname: n.HostName,
 			AuthKey:  n.AuthKey,
@@ -37,7 +37,7 @@ func (n *tsNode) StartNode() {
 		}
 	} else {
 		// use account login
-		n.Srv = &tsnet.Server{
+		n.srv = &tsnet.Server{
 			Ephemeral: n.IsEphemeral, // save the node in tsnet by default when using account login
 			Hostname:  n.HostName,
 			// AuthKey:   authKey,
@@ -47,11 +47,11 @@ func (n *tsNode) StartNode() {
 		}
 	}
 
-	lc, err := n.Srv.LocalClient()
+	lc, err := n.srv.LocalClient()
 	if err != nil {
 		log.Fatal("Error getting local client, quitting with error: ", err)
 	}
-	n.Lc = lc
+	n.lc = lc
 
 	// Wait for initialization to complete if necessary
 	initComplete := make(chan struct{})
@@ -73,7 +73,7 @@ func (n *tsNode) startBackendStateMonitor(initComplete chan struct{}) {
 	// initialized := false
 	// var hasAuthKey bool = srv.AuthKey != ""
 
-	watcher, err := n.Lc.WatchIPNBus(ctx, ipn.NotifyWatchOpt(0))
+	watcher, err := n.lc.WatchIPNBus(ctx, ipn.NotifyWatchOpt(0))
 	if err != nil {
 		log.Printf("Failed to watch IPN bus: %v", err)
 		return
@@ -87,17 +87,30 @@ func (n *tsNode) startBackendStateMonitor(initComplete chan struct{}) {
 			continue
 		}
 
-		if notify.State != nil {
-			
-		}
-
 		// pass the notify to fe directly
-		// n.emit("ts_notify", notify)
-		s, err := n.Lc.Status(ctx)
+		s, err := n.lc.Status(ctx)
 		if err != nil {
 			log.Printf("Failed to get status: %v", err)
 			continue
 		}
 		n.emit("ts_notify", Ts_notify{notify, s})
+
+		if notify.State != nil {
+			if *notify.State == ipn.Running {
+				// ipnReadyChan <- struct{}{}
+				nodeInfo := twncore.NodeInfo{
+					Hostname:    n.HostName,
+					StartTime:   time.Now().Unix(),
+					RandomID:    rand.Uint64(),                   // using `math/rand/v2` for quick random ID generation, not for security purposes
+					TailscaleIP: s.Self.TailscaleIPs[0].String(), // using the first Tailscale IP, which should be IPv4
+				}
+				da := &DesktopAdapter{
+					node:   n,
+					tailscaleIP: nodeInfo.TailscaleIP,
+				}
+
+				go twncore.StartCore(da, func() {}, nodeInfo)
+			}
+		}
 	}
 }

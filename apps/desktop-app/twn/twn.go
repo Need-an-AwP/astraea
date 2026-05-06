@@ -1,31 +1,26 @@
 package twn
 
 import (
-	"net"
-	"net/http"
-
 	"tailscale.com/client/local"
 	"tailscale.com/tsnet"
 )
 
 type tsNode struct {
-	// 配置参数
+	// parameters
 	HostName    string
 	AuthKey     string
+	ControlURL  string // TODO
 	Dir         string
 	IsEphemeral bool
 
-	// 运行状态与连接实例
-	Srv          *tsnet.Server
-	Lc           *local.Client
-	UdpConn      net.PacketConn
-	RtcConn      net.PacketConn
-	HttpListener net.Listener
-	HttpClient   *http.Client
+	// state
+	srv      *tsnet.Server
+	lc       *local.Client
 
-	// 回调与事件方法
+	// methods
 	emit func(name string, data ...any) bool
 }
+
 
 func initTWN(
 	hostName string,
