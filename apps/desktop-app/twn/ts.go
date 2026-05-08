@@ -109,7 +109,7 @@ func (n *tsNode) startBackendStateMonitor(initComplete chan struct{}) {
 					tailscaleIP: nodeInfo.TailscaleIP,
 				}
 
-				go twncore.StartCore(da, func() {}, nodeInfo)
+				go twncore.StartCore(twncore.PlatformDesktop, da, nil, nodeInfo)
 			}
 		}
 	}

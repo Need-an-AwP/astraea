@@ -14,13 +14,12 @@ type tsNode struct {
 	IsEphemeral bool
 
 	// state
-	srv      *tsnet.Server
-	lc       *local.Client
+	srv *tsnet.Server
+	lc  *local.Client
 
 	// methods
 	emit func(name string, data ...any) bool
 }
-
 
 func initTWN(
 	hostName string,

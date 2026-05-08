@@ -10,7 +10,7 @@ import (
 )
 
 type DesktopAdapter struct {
-	node   *tsNode
+	node        *tsNode
 	tailscaleIP string
 }
 
@@ -53,5 +53,11 @@ func (da *DesktopAdapter) GetOnlinePeerIPs() []string {
 	return ips
 }
 
-// 确保 DesktopAdapter 也作为 EventAdapter (目前留空)
+// 确保 DesktopAdapter 也作为 EventAdapter
 var _ twncore.EventAdapter = (*DesktopAdapter)(nil)
+
+func (da *DesktopAdapter) Emit(eventName twncore.EventType, data any) {
+	da.node.emit(string(eventName), data)
+}
+
+func (da *DesktopAdapter) MediaDataPipeline() {}

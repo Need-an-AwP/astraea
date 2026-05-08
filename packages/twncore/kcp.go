@@ -159,7 +159,7 @@ func (om *onlineManager) handleKcpMessage(peerIP string, content []byte) {
 		om.handleSdpIceMessage(peerIP, content, baseMessage.Type)
 	case "direct_rtc_signal":
 		log.Printf("[KCP] received direct RTC message (%s) from %s", baseMessage.Type, peerIP)
-		om.core.rtcManager.invokeDirectRTCMessageCallback(peerIP, string(content))
+		// om.core.rtcManager.invokeDirectRTCMessageCallback(peerIP, string(content))
 	default:
 		log.Printf("[KCP] Unknown message type from %s: %s", peerIP, baseMessage.Type)
 	}
