@@ -14,7 +14,7 @@ export default defineConfig({
     babel({ presets: [reactCompilerPreset()] }),
     tailwindcss(),
     wails(path.resolve(__dirname, "../../packages/core-desktop/bindings")),
-    devtoolsJson()
+    devtoolsJson() // auto connect workspace to devtools
   ],
   resolve: {
     alias: {

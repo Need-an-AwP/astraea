@@ -6,6 +6,7 @@
   "scripts": {
     "update:wails": "go install github.com/wailsapp/wails/v3/cmd/wails3@latest",
     "wails:dev": "pnpm --filter desktop-app wails:dev",
+    "test:d:single": "pnpm --filter tests d:single",
     "fe:dev": "pnpm --filter web-app dev",
     "cloc": "npx -y cloc . --vcs=git"
   },

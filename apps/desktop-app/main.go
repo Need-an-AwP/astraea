@@ -25,7 +25,6 @@ func init() {
 	// and provide a strongly typed JS/TS API for them.
 	application.RegisterEvent[string]("time")
 
-	
 	application.RegisterEvent[twn.Ts_notify]("ts_notify")
 }
 
@@ -54,6 +53,12 @@ func main() {
 		},
 		Mac: application.MacOptions{
 			ApplicationShouldTerminateAfterLastWindowClosed: true,
+		},
+		Windows: application.WindowsOptions{
+			// DEV ONLY
+			AdditionalBrowserArgs: []string{
+				"--remote-debugging-port=9222",
+			},
 		},
 	})
 

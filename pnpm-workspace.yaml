@@ -3,3 +3,4 @@ packages:
   - 'apps/desktop-app'
   - 'apps/playground'
   - 'packages/*'
+  - 'tests'
