@@ -11,12 +11,7 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/events"
 )
 
-// Wails uses Go's `embed` package to embed the frontend files into the binary.
-// Any files in the frontend/dist folder will be embedded into the binary and
-// made available to the frontend.
-// See https://pkg.go.dev/embed for more information.
-
-// _____not_including_frontend_build_artifacts_in_dev_mode______go:embed all:../web-client/dist
+//go:embed all:frontend/dist
 var assets embed.FS
 
 func init() {

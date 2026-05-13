@@ -21,7 +21,7 @@
     /* Linting */
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "erasableSyntaxOnly": true,
+    "erasableSyntaxOnly": false, // for bindings from wails
     "noFallthroughCasesInSwitch": true,
     /* Path aliases */
     "paths": {

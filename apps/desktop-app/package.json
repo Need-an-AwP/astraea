@@ -1,7 +1,7 @@
 {
     "name": "desktop-app",
     "scripts": {
-        "wails:dev": "wails3 dev",
-        "wails:build": "wails3 build"
+        "dev": "wails3 dev",
+        "build:win": "wails3 build GOOS=windows -tags devtools"
     }
 }

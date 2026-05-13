@@ -5,14 +5,16 @@
   "main": "index.js",
   "scripts": {
     "update:wails": "go install github.com/wailsapp/wails/v3/cmd/wails3@latest",
-    "wails:dev": "pnpm --filter desktop-app wails:dev",
-    "test:d:single": "pnpm --filter tests d:single",
+    "wails:dev": "pnpm --filter desktop-app dev",
+    "d:build:test":"pnpm --filter web-app build:d && pnpm --filter desktop-app build:win",
+    "d:test:single": "pnpm --filter tests d:single",
     "fe:dev": "pnpm --filter web-app dev",
     "cloc": "npx -y cloc . --vcs=git"
   },
   "scripts-info":{
     "update:wails": "Updates the Wails V3 CLI to the latest version (including pre releases versions).",
     "wails:dev": "Starts the wails v3 dev server for the desktop application.",
+    "build:d:test": "build frontend and then run wails build for windows",
     "fe:dev": "Starts the vite dev server for the web application.",
     "cloc": "Counts the lines of code in the project using cloc, excluding files tracked by git."
   },
