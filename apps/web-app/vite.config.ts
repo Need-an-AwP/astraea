@@ -8,7 +8,7 @@ import devtoolsJson from 'vite-plugin-devtools-json';
 
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     babel({ presets: [reactCompilerPreset()] }),
@@ -23,5 +23,9 @@ export default defineConfig({
   },
   server: {
     port: 9245 // corresponds to wails dev server port
+  },
+  build: {
+    outDir: mode === 'desktop' ? '../desktop-app/frontend/dist' : 'dist',
+    emptyOutDir: true
   }
-})
+}))

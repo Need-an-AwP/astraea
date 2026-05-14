@@ -21,6 +21,13 @@ windows 构建配置[build/windows/Taskfile.yml](build/windows/Taskfile.yml#L31)
       - task: common:generate:icons
 ```
 
+windows 构建配置[build/windows/Taskfile.yml](build/windows/Taskfile.yml#L55)中`build:native`中的构建标志被修改以允许使用环境变量CONSOLE控制，用于构建带有控制台输出的应用，仅用于测试:
+eg: `cross-env CONSOLE=true wails3 build`
+```yml
+    vars:
+      BUILD_FLAGS: '{{if eq .DEV "true"}}{{if .EXTRA_TAGS}}-tags {{.EXTRA_TAGS}} {{end}}-buildvcs=false -gcflags=all="-l"{{else}}-tags production{{if .EXTRA_TAGS}},{{.EXTRA_TAGS}}{{end}} -trimpath -buildvcs=false -ldflags="-w -s{{if ne .CONSOLE "true"}} -H windowsgui{{end}}"{{end}}'
+```
+
 全局构建配置[build/Taskfile.yml](build/Taskfile.yml#L83)的绑定生成任务修改目标以输出到`@astraea/core-desktop`下:
 ```yml
     generate:bindings:

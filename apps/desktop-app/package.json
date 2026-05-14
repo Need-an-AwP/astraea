@@ -2,6 +2,9 @@
     "name": "desktop-app",
     "scripts": {
         "dev": "wails3 dev",
-        "build:win": "wails3 build GOOS=windows -tags devtools"
+        "build:win:test": "cross-env CONSOLE=true wails3 build GOOS=windows -tags devtools"
+    },
+    "devDependencies": {
+        "cross-env": "^10.1.0"
     }
 }

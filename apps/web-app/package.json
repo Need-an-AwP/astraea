@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:d": "tsc -b && vite build --mode desktop && mv dist ../desktop-app/frontend/dist",
+    "build:d": "tsc -b && vite build --mode desktop",
     "lint": "eslint .",
     "preview": "vite preview",
     "add:shadcn": "pnpm dlx shadcn@latest add button alert-dialog avatar button card context-menu dialog dropdown-menu input label popover progress resizable scroll-area select separator slider sonner switch tooltip sheet badge tabs"

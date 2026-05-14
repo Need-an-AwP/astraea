@@ -1,7 +1,7 @@
-import * as I from '@astraea/interface';
+import { IWailsWindow } from '@astraea/interface';
 import { WindowActions } from '../bindings/astraea-desktop';
 
-export const windowController: I.IWailsWindow = {
+export const windowController: IWailsWindow = {
 
     closeWindow(): void {
         WindowActions.Close();

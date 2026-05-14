@@ -1,11 +1,10 @@
-/// <reference path="../bindings/github.com/wailsapp/wails/v3/internal/eventdata.d.ts" />
+/// <reference path="../../bindings/github.com/wailsapp/wails/v3/internal/eventdata.d.ts" />
 // reference wails bindings event types
 
 import * as I from "@astraea/interface";
 import { configStore } from "./configStore";
-export * from './window';
 import { Events } from "@wailsio/runtime";
-import { StartTWN } from '../bindings/astraea-desktop/twn/twnservice';
+import { StartTWN } from '../../bindings/astraea-desktop/twn/twnservice';
 
 
 export class AstraeaCoreDesktop implements I.AstraeaCore {
