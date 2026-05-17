@@ -5,33 +5,21 @@ import * as I from "@astraea/interface";
 import { configStore } from "./configStore";
 import { Events } from "@wailsio/runtime";
 import { StartTWN } from '../../bindings/astraea-desktop/twn/twnservice';
+import { AstraeaConnection } from "../connection";
 
 
 export class AstraeaCoreDesktop implements I.AstraeaCore {
     private static instance: AstraeaCoreDesktop | null = null;
     public readonly platform: I.Platform = 'desktop';
-    private forceRelayMedia = false; // TEST FLAG: force relay keep transmitting media data
 
+    // core parts
+    private connections: Map<string, AstraeaConnection> = new Map();
+
+    private connectionListener: I.Listener<I.AstraeaConnection> | null = null;
     private nodeStateListener: I.Listener<I.NodeState> | null = null;
     private tsStatusListener: I.Listener<I.TsStatus> | null = null;
 
-    public static async init(config: I.CoreConfig, options?: I.AstraeaCoreOptions): Promise<I.AstraeaCore> {
-        if (AstraeaCoreDesktop.instance) {
-            console.warn("AstraeaCore has already been initialized. Returning existing instance.");
-            return AstraeaCoreDesktop.instance;
-        }
 
-        const instance = new AstraeaCoreDesktop(config);
-
-        if (options) {
-            instance.forceRelayMedia = options.forceRelayMedia ?? instance.forceRelayMedia;
-            options.videoTargetBitrate && configStore.setState({ videoTargetBitrate: options.videoTargetBitrate });
-            options.forceRelayMedia && configStore.setState({ forceRelayMedia: options.forceRelayMedia });
-            options.rtcReportInterval && configStore.setState({ rtcReportInterval: options.rtcReportInterval });
-        }
-        AstraeaCoreDesktop.instance = instance;
-        return instance;
-    }
 
     private constructor(c: I.CoreConfig) {
         StartTWN({
@@ -40,7 +28,6 @@ export class AstraeaCoreDesktop implements I.AstraeaCore {
             dir: "/tmp",
             isEphemeral: true,
         })
-
 
         Events.On("ts_notify", (e) => {
             const { Notify: n, Status: s } = e.data;
@@ -56,8 +43,29 @@ export class AstraeaCoreDesktop implements I.AstraeaCore {
             s && this.tsStatusListener?.(s as I.TsStatus);
             console.log("[AstraeaCoreDesktop] ts_notify status: ", s);
         });
+
+        Events.On("rtc_state", (e)=>{
+            const {peerIP, role, state} = e.data;
+            this.connections.set(peerIP, new AstraeaConnection(peerIP,  this));
+        })
     }
 
+    public static async init(config: I.CoreConfig, options?: I.AstraeaCoreOptions): Promise<I.AstraeaCore> {
+        if (AstraeaCoreDesktop.instance) {
+            console.warn("AstraeaCore has already been initialized. Returning existing instance.");
+            return AstraeaCoreDesktop.instance;
+        }
+
+        const instance = new AstraeaCoreDesktop(config);
+
+        if (options) {
+            options.videoTargetBitrate && configStore.setState({ videoTargetBitrate: options.videoTargetBitrate });
+            options.forceRelayMedia && configStore.setState({ forceRelayMedia: options.forceRelayMedia });
+            options.rtcReportInterval && configStore.setState({ rtcReportInterval: options.rtcReportInterval });
+        }
+        AstraeaCoreDesktop.instance = instance;
+        return instance;
+    }
 
     public onNodeStateChange(listener: I.Listener<I.NodeState>): I.Unsubscribe {
         if (!this.nodeStateListener) {
@@ -79,17 +87,13 @@ export class AstraeaCoreDesktop implements I.AstraeaCore {
 
 
     public onConnection(listener: I.Listener<I.AstraeaConnection>): I.Unsubscribe {
-        return () => { };
-    }
-
-    public setForceRelayMedia(force: boolean): void {
-
+        this.connectionListener = listener;
+        return () => { this.connectionListener = null; };
     }
 
     public sendByKcp(peerIP: string, content: string): void {
 
     }
-
 
     public setInputAudioTrack(track: MediaStreamAudioTrack | null): void {
 
@@ -99,4 +103,6 @@ export class AstraeaCoreDesktop implements I.AstraeaCore {
 
     }
 
+    // EMPTY IMPLEMENTATIONS, everything here should be web only methods
+    public setForceRelayMedia(force: boolean): void { }
 }

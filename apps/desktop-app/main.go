@@ -6,6 +6,7 @@ import (
 	_ "embed"
 	"log"
 	"time"
+	"twncore"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 	"github.com/wailsapp/wails/v3/pkg/events"
@@ -21,6 +22,11 @@ func init() {
 	application.RegisterEvent[string]("time")
 
 	application.RegisterEvent[twn.Ts_notify]("ts_notify")
+
+	// events from twncore
+	application.RegisterEvent[twncore.ConnectionStatePayload](string(twncore.EventConnectionState))
+	application.RegisterEvent[twncore.DataChannelMessagePayload](string(twncore.EventDataChannelMessage))
+	application.RegisterEvent[twncore.RTCReportPayload](string(twncore.EventRTCReport))
 }
 
 func main() {

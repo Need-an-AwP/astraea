@@ -62,6 +62,7 @@ export interface AstraeaCore {
     /**
      * force media data transmission will keep sending data through relay path, 
      * no matter the direct path is available or not. This is useful for testing relay performance and stability.
+     * ## WEB ONLY
      * @param force 
      * @returns 
      */

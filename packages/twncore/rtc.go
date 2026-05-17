@@ -282,10 +282,14 @@ func (rc *RTCConnection) setupPcHandlers() {
 
 	pc.OnConnectionStateChange(func(state webrtc.PeerConnectionState) {
 		log.Printf("[RTC] Connection state with %s changed to %s", rc.peerIP, state.String())
+
+		platform := rc.core.GetPeerPlatform(rc.peerIP)
+
 		rc.core.events.Emit(EventConnectionState, ConnectionStatePayload{
-			PeerIP: rc.peerIP,
-			Role:   rc.role,
-			State:  state.String(),
+			PeerIP:   rc.peerIP,
+			Role:     rc.role,
+			State:    state.String(),
+			Platform: platform,
 		})
 		if pc.ConnectionState() == webrtc.PeerConnectionStateConnected {
 			go func() {

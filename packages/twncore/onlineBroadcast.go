@@ -36,6 +36,7 @@ type NodeInfo struct {
 	StartTime   int64  `json:"start_time"`
 	RandomID    uint64 `json:"random_id"`
 	TailscaleIP string `json:"tailscale_ip"`
+	Platform	string `json:"platform"`
 }
 
 type PeerInfo struct {

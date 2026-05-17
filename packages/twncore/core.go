@@ -32,6 +32,21 @@ type core struct {
 	rtcManager    *RTCManager
 }
 
+// GetPeerPlatform attempts to retrieve the platform information for a given peer IP.
+// Returns "unknown" if the peer is not found or platform is not available.
+func (c *core) GetPeerPlatform(peerIP string) string {
+	if c.onlineManager == nil {
+		return "unknown"
+	}
+
+	if peerInfo, ok := c.onlineManager.onlinePeers.Load(peerIP); ok {
+		if info, ok := peerInfo.(*PeerInfo); ok && info.NodeInfo.Platform != "" {
+			return info.NodeInfo.Platform
+		}
+	}
+	return "unknown"
+}
+
 // Tailscale upstream adapter
 type TailscaleAdapter interface {
 	// create a updConn on the tailscale node
@@ -48,9 +63,10 @@ type EventAdapter interface {
 
 type EventType string
 type ConnectionStatePayload struct {
-	PeerIP string  `json:"peerIP"`
-	Role   RTCRole `json:"role"`
-	State  string  `json:"state"`
+	PeerIP   string  `json:"peerIP"`
+	Role     RTCRole `json:"role"`
+	State    string  `json:"state"`
+	Platform string  `json:"platform"`
 }
 type RTCReportPayload struct {
 	PeerIP string `json:"peerIP"`
@@ -62,10 +78,10 @@ type DataChannelMessagePayload struct {
 }
 
 const (
-	EventConnectionState       EventType = "connection_state"
-	EventStartDirectConnection EventType = "start_direct_connection" // WEB ONLY
+	EventConnectionState       EventType = "rtc_state"
+	EventStartDirectConnection EventType = "start_direct_rtc" // WEB ONLY
 	EventRTCReport             EventType = "rtc_report"
-	EventDataChannelMessage    EventType = "data_channel_message"
+	EventDataChannelMessage    EventType = "dc_message"
 )
 
 func StartCore(

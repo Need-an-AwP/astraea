@@ -2,6 +2,7 @@ import type { Status as TsStatus } from '../types/tailscale-ipnstate'
 import type { AstraeaCore } from './core';
 export type { TsStatus }
 export type { PeerStatus } from '../types/tailscale-ipnstate'
+export type { RTCRole } from '../types/rtc'
 export * from './core';
 export * from './connection';
 export * from '../types/Listener';

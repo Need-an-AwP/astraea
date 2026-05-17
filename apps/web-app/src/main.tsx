@@ -31,7 +31,7 @@ if (IS_DESKTOP) {
 Engine.init({ hostname: "wails-desktop-test", authKey: getAuthKey() }, {})
     .then(core => {
         core.onTsStatusUpdate((status) => {
-            console.log(status);
+            // console.log(status);
             useTailscaleStore.getState().updateTailscaleStatus(status);
         });
 

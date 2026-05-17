@@ -103,13 +103,22 @@ func (n *tsNode) startBackendStateMonitor(initComplete chan struct{}) {
 					StartTime:   time.Now().Unix(),
 					RandomID:    rand.Uint64(),                   // using `math/rand/v2` for quick random ID generation, not for security purposes
 					TailscaleIP: s.Self.TailscaleIPs[0].String(), // using the first Tailscale IP, which should be IPv4
+					Platform:    string(twncore.PlatformDesktop),
 				}
-				da := &DesktopAdapter{
-					node:   n,
+				da := &DesktopTsAdapter{
+					node:        n,
 					tailscaleIP: nodeInfo.TailscaleIP,
 				}
+				ea := &DesktopEventAdapter{
+					node: n,
+				}
 
-				go twncore.StartCore(twncore.PlatformDesktop, da, nil, nodeInfo)
+				go twncore.StartCore(
+					twncore.PlatformDesktop, // desktop flag
+					da,                      // tailscale adapter
+					ea,                      // event adapter
+					nodeInfo,
+				)
 			}
 		}
 	}

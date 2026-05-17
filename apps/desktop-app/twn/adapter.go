@@ -9,16 +9,34 @@ import (
 	"twncore"
 )
 
-type DesktopAdapter struct {
+type DesktopTsAdapter struct {
 	node        *tsNode
 	tailscaleIP string
 }
 
-// 确保 DesktopAdapter 实现了 TailscaleAdapter 接口
-var _ twncore.TailscaleAdapter = (*DesktopAdapter)(nil)
+type DesktopEventAdapter struct {
+	node *tsNode
+}
+
+// 确保实现了对应的 twncore 接口
+var _ twncore.TailscaleAdapter = (*DesktopTsAdapter)(nil)
+var _ twncore.EventAdapter = (*DesktopEventAdapter)(nil)
+
+func (ea *DesktopEventAdapter) Emit(eventName twncore.EventType, data any) {
+	if ea.node.emit == nil {
+		return
+	}
+
+	// 映射 twncore 内部的事件名到面向前端的事件名，这里根据最新规范直接使用定义的 string
+	ea.node.emit(string(eventName), data)
+}
+
+func (ea *DesktopEventAdapter) MediaDataPipeline() {
+	// TODO: 在桌面端处理向前端推流或是音视频管道的逻辑
+}
 
 // createUDPConn 在当前的 tailscale 节点网络栈上创建 UDP 监听 (tsnet API)
-func (da *DesktopAdapter) CreateUDPConn(port int) (net.PacketConn, error) {
+func (da *DesktopTsAdapter) CreateUDPConn(port int) (net.PacketConn, error) {
 	if da.node.srv == nil {
 		return nil, fmt.Errorf("DesktopAdapter: tailscale srv is not initialized")
 	}
@@ -32,7 +50,7 @@ func (da *DesktopAdapter) CreateUDPConn(port int) (net.PacketConn, error) {
 }
 
 // GetOnlinePeerIPs 获取当前在线的对等节点 IP，用于广播 (ipn API)
-func (da *DesktopAdapter) GetOnlinePeerIPs() []string {
+func (da *DesktopTsAdapter) GetOnlinePeerIPs() []string {
 	if da.node.lc == nil {
 		return nil
 	}
@@ -52,12 +70,3 @@ func (da *DesktopAdapter) GetOnlinePeerIPs() []string {
 	}
 	return ips
 }
-
-// 确保 DesktopAdapter 也作为 EventAdapter
-var _ twncore.EventAdapter = (*DesktopAdapter)(nil)
-
-func (da *DesktopAdapter) Emit(eventName twncore.EventType, data any) {
-	da.node.emit(string(eventName), data)
-}
-
-func (da *DesktopAdapter) MediaDataPipeline() {}
