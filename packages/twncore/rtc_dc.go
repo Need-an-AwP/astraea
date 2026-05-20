@@ -18,14 +18,12 @@ func (rm *RTCManager) setupDcHandlers(dc *webrtc.DataChannel, peerIP string, rol
 		// stress test
 		// startStressTest()
 
-		platform := rm.core.GetPeerPlatform(peerIP)
-
 		// only assume connection astablished when data channel is open
 		rm.core.events.Emit(EventConnectionState, ConnectionStatePayload{
 			PeerIP:   peerIP,
 			Role:     role,
 			State:    "connected",
-			Platform: platform,
+			Platform: rm.core.GetPeerPlatform(peerIP),
 		})
 	})
 

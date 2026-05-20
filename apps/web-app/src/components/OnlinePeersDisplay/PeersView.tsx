@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from 'react';
+import { memo, use, useMemo, useState } from 'react';
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,14 +11,17 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Check, Menu } from 'lucide-react';
-import { useTailscaleStore, useRemoteUsersStore, useLocalUserStateStore } from '@/stores';
+import {
+    useTsSelf, useTsPeer, useConnectionInfo,
+    useRemoteUsersStore, useLocalUserStateStore
+} from '@/stores';
 import PeerItem from './PeerItem'
 
 const PeersView = () => {
     const [displayOption, setDisplayOption] = useState<"all" | "online" | "users">("all");
     const [menuOpen, setMenuOpen] = useState(false);
-    const tsPeers = useTailscaleStore(state => state.tailscaleStatus?.Peer)
-    const tsSelf = useTailscaleStore(state => state.tailscaleStatus?.Self)
+    const tsPeers = useTsPeer();
+    const tsSelf = useTsSelf();
     const { peers } = useRemoteUsersStore()
     const { userState } = useLocalUserStateStore()
 
@@ -67,14 +70,14 @@ const PeersView = () => {
 
                     const peerIP = peer.TailscaleIPs[0]
                     const userState = peers[peerIP]
-                    const connectionMode = useTailscaleStore.getState().connectionModes?.[peerIP];
+                    const connectionStatus = useConnectionInfo().get(peerIP)
                     if (displayOption === "users" && !userState) return null;
 
                     return <PeerItem
                         key={nodekey}
                         peerStatus={peer}
                         userState={userState}
-                        connectionMode={connectionMode}
+                        connectionStatus={connectionStatus}
                     />
                 })}
             </ScrollArea>

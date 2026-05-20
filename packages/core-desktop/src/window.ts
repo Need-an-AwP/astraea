@@ -1,4 +1,4 @@
-import { IWailsWindow } from '@astraea/interface';
+import type { IWailsWindow } from '@astraea/interface';
 import { WindowActions } from '../bindings/astraea-desktop';
 
 export const windowController: IWailsWindow = {

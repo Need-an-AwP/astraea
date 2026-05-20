@@ -5,7 +5,7 @@ import {
     ResizablePanelGroup,
 } from "@/components/ui/resizable"
 import type { PanelImperativeHandle } from "react-resizable-panels";
-import { usePanelStore } from "@/stores/ui";
+import { usePanelStore } from "@/stores";
 import OnlinePeersDisplay from "./OnlinePeersDisplay";
 
 export default function MainResizablePanel() {
