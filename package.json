@@ -14,7 +14,7 @@
   "scripts-info":{
     "update:wails": "Updates the Wails V3 CLI to the latest version (including pre releases versions).",
     "wails:dev": "Starts the wails v3 dev server for the desktop application.",
-    "d:build:test": "build frontend and then run wails build for windows",
+    "d:build:test": "TEST ONLY: build frontend and then run wails build for windows using console mode with devtools enabled.",
     "d:test:single": "",
     "fe:dev": "Starts the vite dev server for the web application.",
     "cloc": "Counts the lines of code in the project using cloc, excluding files tracked by git."

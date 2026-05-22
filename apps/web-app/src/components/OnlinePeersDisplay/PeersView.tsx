@@ -1,4 +1,4 @@
-import { memo, use, useMemo, useState } from 'react';
+import { memo, use, useMemo, useRef, useState } from 'react';
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,9 +10,9 @@ import {
     DropdownMenuGroup,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Check, Menu } from 'lucide-react';
+import { Check, ChevronUp, Dot, Menu } from 'lucide-react';
 import {
-    useTsSelf, useTsPeer, useConnectionInfo,
+    useTsSelf, useTsPeer, useConnections,
     useRemoteUsersStore, useLocalUserStateStore
 } from '@/stores';
 import PeerItem from './PeerItem'
@@ -24,6 +24,8 @@ const PeersView = () => {
     const tsSelf = useTsSelf();
     const { peers } = useRemoteUsersStore()
     const { userState } = useLocalUserStateStore()
+    const connections = useConnections();
+    const topRef = useRef<HTMLDivElement>(null);
 
     const sortedPeerEntries = useMemo(() => {
         if (!tsPeers) return [];
@@ -53,6 +55,7 @@ const PeersView = () => {
     return (
         <div className="group relative flex-1 overflow-auto">
             <ScrollArea className="h-full w-full" scrollBarClassName={`opacity-0 group-hover:opacity-100 transition-opacity`}>
+                <div ref={topRef} />
                 {/* local user and machine */}
                 {localPeer && (
                     <PeerItem
@@ -70,7 +73,7 @@ const PeersView = () => {
 
                     const peerIP = peer.TailscaleIPs[0]
                     const userState = peers[peerIP]
-                    const connectionStatus = useConnectionInfo().get(peerIP)
+                    const connectionStatus = connections[peerIP]
                     if (displayOption === "users" && !userState) return null;
 
                     return <PeerItem
@@ -80,6 +83,12 @@ const PeersView = () => {
                         connectionStatus={connectionStatus}
                     />
                 })}
+
+                <div className="h-10 justify-center items-center flex">
+                    <Button className="" variant='ghost' size='icon' onClick={() => topRef.current?.scrollIntoView({ behavior: 'smooth' })}>
+                        <ChevronUp />
+                    </Button>
+                </div>
             </ScrollArea>
             <div className='absolute bottom-0 right-0'>
                 <div className={`flex gap-2 mx-2 transition-opacity ${menuOpen ? 'opacity-100' : 'group-hover:opacity-100 opacity-0'}`}>
@@ -95,7 +104,8 @@ const PeersView = () => {
                         } />
                         <DropdownMenuContent className="w-64">
                             <DropdownMenuGroup>
-                                <DropdownMenuLabel>Display Options</DropdownMenuLabel>
+                                <DropdownMenuLabel>Display Mode</DropdownMenuLabel>
+                                <DropdownMenuLabel>Filter</DropdownMenuLabel>
                                 <DropdownMenuRadioGroup value={displayOption} onValueChange={setDisplayOption}>
                                     <DropdownMenuRadioItem value="online">
                                         Only display online machines

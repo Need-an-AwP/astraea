@@ -2,6 +2,8 @@ import type * as L from '../types/Listener';
 
 
 export interface AstraeaConnection {
+    readonly peerIP: string;
+
     /**
      * set status change event callback
      * - WEB: the listener will receive an object containing FULL status: relayStatus, directStatus and activePath

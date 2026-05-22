@@ -1,7 +1,7 @@
 import { AstraeaCoreDesktop } from '@astraea/core-desktop';
 import { AstraeaCoreWeb } from "@astraea/core-web";
 import { IS_DESKTOP } from '@/lib/env.ts';
-import { updateTailscaleStatus, setNodeState, addErrorLog } from '@/stores';
+import { updateTailscaleStatus, setNodeState, addErrorLog, updateConnectionStatus } from '@/stores';
 
 const getAuthKey = () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -32,7 +32,8 @@ export const startEngine = async () => {
             authKey: getAuthKey()
         }, {
 
-        })
+        });
+
         core.onTsStatusUpdate((status) => {
             console.log(status);
             updateTailscaleStatus(status);
@@ -49,8 +50,10 @@ export const startEngine = async () => {
         });
 
         core.onConnection((conn) => {
-            conn.onStatusChange((status) => {
+            updateConnectionStatus(conn.peerIP);
 
+            conn.onStatusChange((status) => {
+                updateConnectionStatus(conn.peerIP, status)
             });
 
             conn.onMessage((msg) => {

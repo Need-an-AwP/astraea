@@ -1,10 +1,11 @@
 import path from "path"
 import tailwindcss from "@tailwindcss/vite"
-import { defineConfig } from 'vite'
+import { defineConfig, type PluginOption } from 'vite'
 import react, { reactCompilerPreset } from '@vitejs/plugin-react'
 import babel from '@rolldown/plugin-babel'
 import wails from "@wailsio/runtime/plugins/vite";
 import devtoolsJson from 'vite-plugin-devtools-json';
+import { visualizer } from "rollup-plugin-visualizer";
 
 
 // https://vite.dev/config/
@@ -14,7 +15,8 @@ export default defineConfig(({ mode }) => ({
     babel({ presets: [reactCompilerPreset()] }),
     tailwindcss(),
     wails(path.resolve(__dirname, "../../packages/core-desktop/bindings")),
-    devtoolsJson() // auto connect workspace to devtools
+    devtoolsJson(), // auto connect workspace to devtools
+    // visualizer() as PluginOption // for bundle analysis
   ],
   resolve: {
     alias: {

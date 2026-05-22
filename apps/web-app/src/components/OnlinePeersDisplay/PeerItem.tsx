@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Laptop, Server, Smartphone, Globe } from 'lucide-react';
 import type { PeerState } from "@/types"
 import type { PeerStatus } from '@astraea/interface';
-import type { ConnectionStatus } from '@/stores';
+import type { ConnectionInfo } from '@/stores';
 // import LatencyDisplay from './LatencyDisplay';
 
 const OsIcon = memo(({ os }: { os?: string }) => {
@@ -25,13 +25,13 @@ type PeerItemProps =
     | {
         peerStatus: PeerStatus;
         userState: PeerState;
-        connectionStatus?: ConnectionStatus;
+        connectionStatus?: ConnectionInfo;
         isSelf: true;
     }
     | {
         peerStatus: PeerStatus;
         userState: PeerState;
-        connectionStatus: ConnectionStatus | undefined;
+        connectionStatus: ConnectionInfo | undefined;
         isSelf?: false;
     };
 
@@ -45,7 +45,7 @@ const PeerItem = ({
     const peer = peerStatus
     const user = userState
 
-    const connectionMode = isSelf ? undefined : connectionStatus?.connectionMode;
+    const connectionMode = isSelf ? undefined : connectionStatus?.mode;
 
     const onlineStyle = useMemo(() =>
         `text-[10px] px-1 py-0 cursor-default ${peer.Online ? "text-white" : "text-muted-foreground"}`,

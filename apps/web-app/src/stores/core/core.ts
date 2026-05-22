@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { TsStatus, NodeState } from '@astraea/interface';
-import { usePeerStore } from './peer'
+import { setTsPeer } from './peer'
+import { IS_DESKTOP } from '@/lib/env';
 
 interface CoreState {
     /** basic node state */
@@ -35,7 +36,7 @@ export const updateTailscaleStatus = (status: TsStatus) => {
         tsSelf,
         tsStatus: rest,
     });
-    usePeerStore.setState({ tsPeer });
+    setTsPeer(tsPeer);
 };
 export const addErrorLog = (msg: string) => {
     useCoreStore.setState((state) => ({ error: [...state.error, msg] }));

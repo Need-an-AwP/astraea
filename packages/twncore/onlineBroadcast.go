@@ -67,7 +67,10 @@ func (c *core) initOnlineManager(nodeInfo NodeInfo) *onlineManager {
 		peerInfoCh:   make(chan *PeerInfo, 100),
 	}
 
+	go om.startKcpCoordinator()
+
 	go om.startUDPListener()
+
 	return om
 }
 
@@ -228,5 +231,89 @@ func (om *onlineManager) sendUDPMessage(ip string, content []byte) {
 	_, err = om.msgConn.WriteTo(content, targetAddr)
 	if err != nil {
 		log.Printf("[TWN-onlineManager] Failed to send UDP message to %s: %v", targetAddr.String(), err)
+	}
+}
+
+// func (i *jsIPN) RemoveOfflinePeer(this js.Value, args []js.Value) interface{} {
+// 	if len(args) < 1 {
+// 		log.Printf("[jsIPN] Failed to remove offline peer: no peerIP provided")
+// 		return nil
+// 	}
+// 	peerIP := args[0].String()
+	
+// 	if i.onlineManager != nil {
+// 		i.onlineManager.onlinePeers.Delete(peerIP)
+// 	}
+	
+// 	if i.rtcManager != nil {
+// 		i.rtcManager.closeConnection(peerIP)
+// 	}
+
+// 	log.Printf("[jsIPN] Successfully removed offline peer by command from JS: %s", peerIP)
+// 	return nil
+// }
+
+
+type kcpResult struct {
+	ip  string
+	err error
+}
+
+func (om *onlineManager) startKcpCoordinator() {
+	connecting := make(map[string]bool)
+	connected := make(map[string]bool)
+	kcpResultCh := make(chan kcpResult) // 私有回调通道
+
+	for {
+		select {
+		case peerInfo, ok := <-om.peerInfoCh:
+			if !ok {
+				return // 监听通道关闭则退出
+			}
+
+			peerIP := peerInfo.NodeInfo.TailscaleIP
+			selfNodeInfo := om.core.nodeInfo
+
+			// 跳过自己
+			if peerIP == selfNodeInfo.TailscaleIP {
+				continue
+			}
+
+			// 检查是否正在连接中，防震荡和重入
+			if connecting[peerIP] {
+				continue
+			}
+
+			// 目前暂时仍然依赖 i.kcpSessions 检查是否真正建立完成
+			if _, exists := connected[peerIP]; !exists {
+				shouldCreateConnection := selfNodeInfo.StartTime > peerInfo.NodeInfo.StartTime ||
+					(selfNodeInfo.StartTime == peerInfo.NodeInfo.StartTime && selfNodeInfo.RandomID > peerInfo.NodeInfo.RandomID)
+
+				if shouldCreateConnection {
+					log.Printf("[KCP Coordinator] peer:%s-%s, shouldCreateConnection: %v", peerInfo.NodeInfo.Hostname, peerInfo.NodeInfo.TailscaleIP, shouldCreateConnection)
+
+					// 标记为正在连接状态，锁定
+					connecting[peerIP] = true
+
+					// 适配器模式：启动 worker，用闭包将同步连接结果转成信道事件
+					go func(ip string) {
+						err := om.createKcpConnection(ip)
+						// 绝对禁止在这里写 map，只负责“发消息”
+						kcpResultCh <- kcpResult{ip: ip, err: err}
+					}(peerIP)
+				}
+			}
+
+		case res := <-kcpResultCh:
+			// Callback 事件到达该协调器内部。在这里修改 map 100% 线程安全
+			delete(connecting, res.ip)
+			if res.err == nil {
+				connected[res.ip] = true
+			}
+
+			if res.err != nil {
+				log.Printf("[KCP Coordinator] KCP connection failed to %s: %v", res.ip, res.err)
+			}
+		}
 	}
 }

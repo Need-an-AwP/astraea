@@ -26,4 +26,7 @@ dist-ssr
 # wails v3 auto gen
 /bindings
 
+# rollup-plugin-visualizer
+stats.html
+
 .env
