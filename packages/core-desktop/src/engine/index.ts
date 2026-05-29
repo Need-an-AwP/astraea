@@ -15,6 +15,7 @@ export class AstraeaCoreDesktop implements I.AstraeaCore {
     // core parts
     private connections: Map<string, AstraeaConnection> = new Map();
 
+    private errorListener: I.Listener<string> | null = null;
     private connectionListener: I.Listener<I.AstraeaConnection> | null = null;
     private nodeStateListener: I.Listener<I.NodeState> | null = null;
     private tsStatusListener: I.Listener<I.TsStatus> | null = null;
@@ -44,9 +45,9 @@ export class AstraeaCoreDesktop implements I.AstraeaCore {
             console.log("[AstraeaCoreDesktop] ts_notify status: ", s);
         });
 
-        Events.On("rtc_state", (e)=>{
-            const {peerIP, role, state} = e.data;
-            this.connections.set(peerIP, new AstraeaConnection(peerIP,  this));
+        Events.On("rtc_state", (e) => {
+            const { peerIP, role, state } = e.data;
+            this.connections.set(peerIP, new AstraeaConnection(peerIP, this));
         })
     }
 
@@ -82,7 +83,8 @@ export class AstraeaCoreDesktop implements I.AstraeaCore {
     }
 
     public onError(listener: I.Listener<string>): I.Unsubscribe {
-        return () => { };
+        this.errorListener = listener;
+        return () => { this.errorListener = null; };
     }
 
 
