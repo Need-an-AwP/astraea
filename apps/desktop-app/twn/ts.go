@@ -120,6 +120,8 @@ func (n *tsNode) startBackendStateMonitor(initComplete chan struct{}) {
 					nodeInfo,
 				)
 			}
+		} else if notify.ErrMessage != nil {
+			n.emit("ts_error", *notify.ErrMessage)
 		}
 	}
 }

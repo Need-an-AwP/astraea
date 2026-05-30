@@ -8,6 +8,7 @@
     "wails:dev": "pnpm --filter desktop-app dev",
     "d:build:test":"pnpm --filter web-app build:d && pnpm --filter desktop-app build:win:test",
     "d:test:single": "pnpm --filter tests d:single",
+    "vm:test": "powershell -NoProfile -Command \"Start-Process powershell -Verb RunAs -ArgumentList '-NoProfile','-NoExit','-File', (Resolve-Path '.\\tests\\desktop\\hyperv.ps1')\"",
     "fe:dev": "pnpm --filter web-app dev",
     "cloc": "npx -y cloc . --vcs=git"
   },
@@ -16,6 +17,7 @@
     "wails:dev": "Starts the wails v3 dev server for the desktop application.",
     "d:build:test": "TEST ONLY: build frontend and then run wails build for windows using console mode with devtools enabled.",
     "d:test:single": "",
+    "vm:test": "Runs the hyperV test script. `$pwd` is been passed to new admin powershell, then copy test exe file to VM and execute it.",
     "fe:dev": "Starts the vite dev server for the web application.",
     "cloc": "Counts the lines of code in the project using cloc, excluding files tracked by git."
   },
