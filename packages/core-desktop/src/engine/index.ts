@@ -38,11 +38,12 @@ export class AstraeaCoreDesktop implements I.AstraeaCore {
                 const stateStr = I.stateMapping[n.State] as I.NodeState;
                 this.nodeStateListener?.(stateStr);
             }
-            // console.log("[AstraeaCoreDesktop] ts_notify notify: ", n);
 
             // assert status (from wails bindings) as I.TsStatus (from tygo generation)
             s && this.tsStatusListener?.(s as I.TsStatus);
-            console.log("[AstraeaCoreDesktop] ts_notify status: ", s);
+            console.log("[AstraeaCoreDesktop] ts_notify \nstatus:", s, "\nnotify:", n);
+
+            n.ErrMessage && this.errorListener?.(n.ErrMessage);
         });
 
         Events.On("rtc_state", (e) => {

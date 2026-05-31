@@ -39,12 +39,14 @@ function AlertDialogOverlay({
 function AlertDialogContent({
   className,
   size = "default",
+  portalContainer,
   ...props
 }: AlertDialogPrimitive.Popup.Props & {
-  size?: "default" | "sm"
+  size?: "default" | "sm" | "auto" // "auto" for removing `data-[size=default]:max-w-xs`
+  portalContainer?: HTMLElement | null // allow specifying portal container
 }) {
   return (
-    <AlertDialogPortal>
+    <AlertDialogPortal container={portalContainer ?? undefined}>
       <AlertDialogOverlay />
       <AlertDialogPrimitive.Popup
         data-slot="alert-dialog-content"

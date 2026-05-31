@@ -28,7 +28,7 @@ const TitleBar = () => {
     
 
     return (
-        <div className='w-full flex shrink-0 h-8 bg-white/5' >
+        <div className='w-full flex shrink-0 h-8 bg-white/5 z-999' >
 
             <div
                 className='flex-1 h-full select-none'

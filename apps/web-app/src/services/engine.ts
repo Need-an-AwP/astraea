@@ -35,7 +35,7 @@ export const startEngine = async () => {
         });
 
         core.onTsStatusUpdate((status) => {
-            console.log(status);
+            // console.log(status);
             updateTailscaleStatus(status);
         });
 

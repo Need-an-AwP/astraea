@@ -29,7 +29,7 @@ export default function MainResizablePanel() {
             >
                 <div className="flex flex-col h-full justify-start">
                     <ResizablePanelGroup orientation="vertical">
-                        <ResizablePanel defaultSize='40%' collapsible={true}>
+                        <ResizablePanel defaultSize='40%' collapsible={true} style={{ overflow: 'hidden' }}>
                             <OnlinePeersDisplay />
                         </ResizablePanel>
                         <ResizableHandle />

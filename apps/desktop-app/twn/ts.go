@@ -80,6 +80,8 @@ func (n *tsNode) startBackendStateMonitor(initComplete chan struct{}) {
 	}
 	defer watcher.Close()
 
+	coreStarted := false
+
 	for {
 		notify, err := watcher.Next()
 		if err != nil {
@@ -96,7 +98,15 @@ func (n *tsNode) startBackendStateMonitor(initComplete chan struct{}) {
 		n.emit("ts_notify", Ts_notify{notify, s})
 
 		if notify.State != nil {
-			if *notify.State == ipn.Running {
+			if *notify.State == ipn.Running && !coreStarted {
+				coreStarted = true
+
+				// Ensure initComplete is signaled so StartNode can finish blocking
+				select {
+				case initComplete <- struct{}{}:
+				default:
+				}
+
 				// ipnReadyChan <- struct{}{}
 				nodeInfo := twncore.NodeInfo{
 					Hostname:    n.HostName,
@@ -113,6 +123,7 @@ func (n *tsNode) startBackendStateMonitor(initComplete chan struct{}) {
 					node: n,
 				}
 
+				log.Printf("starting core with node info: %+v", nodeInfo)
 				go twncore.StartCore(
 					twncore.PlatformDesktop, // desktop flag
 					da,                      // tailscale adapter
@@ -120,8 +131,6 @@ func (n *tsNode) startBackendStateMonitor(initComplete chan struct{}) {
 					nodeInfo,
 				)
 			}
-		} else if notify.ErrMessage != nil {
-			n.emit("ts_error", *notify.ErrMessage)
 		}
 	}
 }

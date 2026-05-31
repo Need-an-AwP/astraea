@@ -31,15 +31,19 @@ export const usePopover = create<PopoverState>((set, get) => ({
 }))
 
 interface panelState {
+    showWelcome: boolean;
     leftPanelHandle: PanelImperativeHandle | null;
     rightPanelHandle: PanelImperativeHandle | null;
     setLeftPanelHandle: (ref: PanelImperativeHandle) => void;
     setRightPanelHandle: (ref: PanelImperativeHandle) => void;
+    setShowWelcome: (show: boolean) => void;
 }
 
 export const usePanelStore = create<panelState>((set, get) => ({
+    showWelcome: true,
     leftPanelHandle: null,
     rightPanelHandle: null,
     setLeftPanelHandle: ref => set({ leftPanelHandle: ref }),
     setRightPanelHandle: ref => set({ rightPanelHandle: ref }),
+    setShowWelcome: show => set({ showWelcome: show }),
 }))
