@@ -59,9 +59,35 @@ const idbStorage: StateStorage = {
 interface LocalUserStateStore {
     userState: PeerState
     initialized: boolean
-    initializeSelfState: () => Promise<void>// the init method is called in userProfile component
+    initializeSelfState: () => void
     updateSelfState: (partialState: Partial<PeerState>) => void
 }
+
+type PersistedUserProfile = {
+    userState: Pick<PeerState, 'userName' | 'userAvatar'>
+}
+
+const persistUserProfile = (state: LocalUserStateStore): PersistedUserProfile => ({
+    userState: {
+        userName: state.userState.userName,
+        userAvatar: state.userState.userAvatar,
+    },
+});
+
+const mergeUserProfile = (
+    persisted: PersistedUserProfile | undefined,
+    current: LocalUserStateStore
+): LocalUserStateStore => {
+    if (!persisted) return current;
+
+    return {
+        ...current,
+        userState: {
+            ...current.userState,
+            ...persisted.userState,
+        },
+    };
+};
 
 export const useLocalUserStateStore = create<LocalUserStateStore>()(
     subscribeWithSelector(
@@ -69,60 +95,27 @@ export const useLocalUserStateStore = create<LocalUserStateStore>()(
             (set) => ({
                 userState: defaultPeerState,
                 initialized: false,
-                initializeSelfState: async () => {
-                    try {
-                        // const userConfig = await window.ipcBridge.getUserConfig();
-                        set((state) => ({
-                            ...state,
-                            userState: {
-                                ...state.userState,
-                                // ...(userConfig.userName !== undefined && { userName: userConfig.userName }),
-                                // ...(userConfig.userAvatar !== undefined && { userAvatar: userConfig.userAvatar }),
-                            },
-                            initialized: true,
-                        }));
-                    } catch (error) {
-                        console.error('Failed to load user config:', error);
-                        set((state) => ({
-                            ...state,
-                            initialized: true,
-                        }));
-                    }
+                initializeSelfState: () => {
+                    set({ initialized: true });
                 },
                 updateSelfState: (partialState: Partial<PeerState>) => {
-                    try {
-                        // for status should be save to local storage
-                        if (partialState.userName !== undefined) {
-                            // window.ipcBridge.setUserConfig('userName', partialState.userName);
-                        }
-                        if (partialState.userAvatar !== undefined) {
-                            // window.ipcBridge.setUserConfig('userAvatar', partialState.userAvatar);
-                        }
-                        // for all state
-                        set((state) => ({
-                            ...state,
-                            userState: {
-                                ...state.userState,
-                                ...partialState,
-                            },
-                        }));
-
-                        // syncMirrorState();
-                    } catch (error) {
-                        console.error('Failed to update user config:', error);
-                    }
+                    set((state) => ({
+                        userState: {
+                            ...state.userState,
+                            ...partialState,
+                        },
+                    }));
                 },
             }),
             {
                 name: 'astraea-user-profile',
                 storage: createJSONStorage(() => idbStorage),
-                partialize: (state) => ({
-                    // 仅过滤持久化字段，拒绝无用状态（如正在开麦）被序列化存下
-                    userState: {
-                        userName: state.userState.userName,
-                        userAvatar: state.userState.userAvatar,
-                    }
-                }),
+                partialize: persistUserProfile,
+                merge: (persisted, current) => mergeUserProfile(
+                    persisted as PersistedUserProfile | undefined,
+                    current
+                ),
+                onRehydrateStorage: () => (state) => state?.initializeSelfState(),
             }
         )
     )

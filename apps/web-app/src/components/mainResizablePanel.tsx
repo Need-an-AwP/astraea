@@ -7,6 +7,7 @@ import {
 import type { PanelImperativeHandle } from "react-resizable-panels";
 import { usePanelStore } from "@/stores";
 import OnlinePeersDisplay from "./OnlinePeersDisplay";
+import UserPanel from "./UserPanel";
 
 export default function MainResizablePanel() {
     const setLeftPanelHandle = usePanelStore(state => state.setLeftPanelHandle);
@@ -40,7 +41,7 @@ export default function MainResizablePanel() {
 
 
                     <div className="pt-0 mt-auto">
-                        {/* <UserPanel /> */}
+                        <UserPanel />
                     </div>
                 </div>
             </ResizablePanel>
