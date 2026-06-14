@@ -41,7 +41,7 @@ class SessionManager {
             try {
                 usePanelStore.getState().setShowWelcome(false);
                 this.engineInstance = await startEngine(authKey, hostname);
-                return await startEngine(authKey, hostname);
+                return ;
             } finally {
                 this.loginPromise = null;
             }

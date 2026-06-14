@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "apps/desktop-app"
+		},
+		{
+			"path": "apps/web-app"
+		}
+	],
+	"settings": {
+		"typescript.tsdk": "web-app\\node_modules\\typescript\\lib"
+	}
+}

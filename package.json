@@ -6,13 +6,13 @@
   "scripts": {
     "update:wails": "go install github.com/wailsapp/wails/v3/cmd/wails3@latest",
     "wails:dev": "pnpm --filter desktop-app dev",
-    "d:build:test":"pnpm --filter web-app build:d && pnpm --filter desktop-app build:win:test",
+    "d:build:test": "pnpm --filter web-app build:d && pnpm --filter desktop-app build:win:test",
     "d:test:single": "pnpm --filter tests d:single",
     "vm:test": "powershell -NoProfile -Command \"Start-Process powershell -Verb RunAs -ArgumentList '-NoProfile','-NoExit','-File', (Resolve-Path '.\\tests\\desktop\\hyperv.ps1')\"",
     "fe:dev": "pnpm --filter web-app dev",
     "cloc": "npx -y cloc . --vcs=git"
   },
-  "scripts-info":{
+  "scripts-info": {
     "update:wails": "Updates the Wails V3 CLI to the latest version (including pre releases versions).",
     "wails:dev": "Starts the wails v3 dev server for the desktop application.",
     "d:build:test": "TEST ONLY: build frontend and then run wails build for windows using console mode with devtools enabled.",
@@ -23,6 +23,5 @@
   },
   "keywords": [],
   "author": "Need_an_AwP",
-  "license": "ISC",
-  "packageManager": "pnpm@10.30.0"
+  "license": "ISC"
 }
