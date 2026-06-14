@@ -2,8 +2,9 @@ import { useCallback, useState } from 'react'
 import TitleBar from '@/components/TitleBar'
 import { usePopover } from '@/stores'
 import MainResizablePanel from './components/mainResizablePanel'
-import WelcomePanel from './components/Welcome'
+import LoginPanel from './components/Login'
 import { IS_DESKTOP } from './lib/env'
+import Loading from './components/loading'
 
 
 export default function MainView() {
@@ -30,11 +31,15 @@ export default function MainView() {
                         closeAll()
                     }}
                 />
+
                 {/* main panel */}
                 <MainResizablePanel />
 
-                {/* welcome panel */}
-                <WelcomePanel portalContainer={mainContentEl} />
+                {/* login panel */}
+                <LoginPanel portalContainer={mainContentEl} />
+
+                {/* loading */}
+                <Loading />
             </div>
         </div>
     )

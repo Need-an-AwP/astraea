@@ -40,7 +40,7 @@ interface panelState {
 }
 
 export const usePanelStore = create<panelState>((set, get) => ({
-    showWelcome: true,
+    showWelcome: false,
     leftPanelHandle: null,
     rightPanelHandle: null,
     setLeftPanelHandle: ref => set({ leftPanelHandle: ref }),

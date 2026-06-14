@@ -1,7 +1,8 @@
 import { create } from 'zustand';
-import { subscribeWithSelector, type StateStorage, persist, createJSONStorage } from 'zustand/middleware'
+import { subscribeWithSelector, persist, createJSONStorage } from 'zustand/middleware'
 import type { PeerState } from '@/types';
-import * as idb from 'idb-keyval';
+import idbStorage from '../idb';
+
 
 interface RemoteUsersState {
     peers: Record<string, PeerState>
@@ -44,17 +45,7 @@ const defaultPeerState: PeerState = {
     isSharingAudio: false,
 }
 
-const idbStorage: StateStorage = {
-    getItem: async (name: string): Promise<string | null> => {
-        return (await idb.get(name)) || null;
-    },
-    setItem: async (name: string, value: string): Promise<void> => {
-        await idb.set(name, value);
-    },
-    removeItem: async (name: string): Promise<void> => {
-        await idb.del(name);
-    },
-};
+
 
 interface LocalUserStateStore {
     userState: PeerState

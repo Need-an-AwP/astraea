@@ -41,7 +41,7 @@ export class AstraeaCoreDesktop implements I.AstraeaCore {
 
             // assert status (from wails bindings) as I.TsStatus (from tygo generation)
             s && this.tsStatusListener?.(s as I.TsStatus);
-            console.log("[AstraeaCoreDesktop] ts_notify \nstatus:", s, "\nnotify:", n);
+            // console.log("[AstraeaCoreDesktop] ts_notify \nstatus:", s, "\nnotify:", n);
 
             n.ErrMessage && this.errorListener?.(n.ErrMessage);
         });

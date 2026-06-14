@@ -1,35 +1,60 @@
 import { AstraeaCoreDesktop } from '@astraea/core-desktop';
 import { AstraeaCoreWeb } from "@astraea/core-web";
 import { IS_DESKTOP } from '@/lib/env.ts';
-import { updateTailscaleStatus, setNodeState, addErrorLog, updateConnectionStatus } from '@/stores';
+import {
+    updateTailscaleStatus, setNodeState, addErrorLog,
+    updateConnectionStatus, usePanelStore, useAuthStore
+} from '@/stores';
 
-const getAuthKey = () => {
+
+export const resolveAuthKey = (): { authKey: string, source: 'url' | 'store' | 'default' } => {
+    // 1st priority: url param
     const urlParams = new URLSearchParams(window.location.search);
-    const authKeyParam = urlParams.get("authkey");
-    const authKey = authKeyParam || import.meta.env.VITE_NODE_AUTH_KEY; // CAUTION: THIS WILL HARD-CODE AUTHKEY INTO THE BUNDLE IF USED
-    if (!authKey) {
-        console.warn("Missing authkey in URL or env");
-        return '';
-    } else {
-        return authKey
+    const authKeyFromUrl = urlParams.get("authkey");
+    if (authKeyFromUrl) {
+        useAuthStore.getState().setAuthKey(authKeyFromUrl, 'url'); // update Store & IDB
+        return { authKey: authKeyFromUrl, source: 'url' };
     }
+
+    // 2nd priority: idb store
+    const authKeyFromStore = useAuthStore.getState().authKey;
+    if (authKeyFromStore) {
+        return { authKey: authKeyFromStore, source: 'store' };
+    }
+
+    return { authKey: '', source: 'default' };
 }
 
-let engineInstance: AstraeaCoreDesktop | AstraeaCoreWeb | null = null;
-let isInitializing = false;
+export const resolveHostname = (): { hostname: string, source: 'url' | 'store' | 'default' } => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const hostnameFromUrl = urlParams.get("hostname");
+    if (hostnameFromUrl) {
+        useAuthStore.getState().setHostname(hostnameFromUrl); // update Store & IDB
+        return { hostname: hostnameFromUrl, source: 'url' };
+    }
+
+    const hostnameFromStore = useAuthStore.getState().hostname;
+    if (hostnameFromStore) {
+        return { hostname: hostnameFromStore, source: 'store' };
+    }
+
+    return {
+        hostname: IS_DESKTOP ? "astraea-desktop" : "astraea-web",
+        source: 'default'
+    };
+}
 
 
 
-export const startEngine = async () => {
-    if (engineInstance || isInitializing) return engineInstance;
-    isInitializing = true;
 
+export const startEngine = async (authKey: string, hostname: string): Promise<AstraeaCoreDesktop | AstraeaCoreWeb> => {
     try {
+
         const Engine = IS_DESKTOP ? AstraeaCoreDesktop : AstraeaCoreWeb;
 
         const core = await Engine.init({
-            hostname: "wails-desktop-test",
-            authKey: getAuthKey()
+            hostname: hostname,
+            authKey: authKey,
         }, {
 
         });
@@ -73,10 +98,8 @@ export const startEngine = async () => {
             });
         })
 
-        return core;
+        return core as AstraeaCoreDesktop | AstraeaCoreWeb;
     } catch (error) {
-
-    } finally {
-        isInitializing = false;
+        console.error("Engine initialization failed: ", error);
     }
 }
