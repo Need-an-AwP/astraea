@@ -8,6 +8,15 @@
 		},
 		{
 			"path": "apps/web-app"
+		},
+		{
+			"path": "packages/core-desktop"
+		},
+		{
+			"path": "packages/core-web"
+		},
+		{
+			"path": "packages/interface"
 		}
 	],
 	"settings": {

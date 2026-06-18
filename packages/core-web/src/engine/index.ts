@@ -6,7 +6,7 @@ export class AstraeaCoreWeb implements I.AstraeaCore {
     public readonly platform: I.Platform = 'web';
     private forceRelayMedia = false; // TEST FLAG: force relay keep transmitting media data
 
-    public static async init(config: I.CoreConfig, options?: I.AstraeaCoreOptions): Promise<I.AstraeaCore> {
+    public static init(config: I.CoreConfig, options?: I.AstraeaCoreOptions): I.AstraeaCore {
         if (AstraeaCoreWeb.instance) {
             console.warn("AstraeaCore has already been initialized. Returning existing instance.");
             return AstraeaCoreWeb.instance;
@@ -63,3 +63,6 @@ export class AstraeaCoreWeb implements I.AstraeaCore {
     }
 
 }
+
+// type check for static method init
+const _staticCheck: I.AstraeaCoreStatic = AstraeaCoreWeb;

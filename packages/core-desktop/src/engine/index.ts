@@ -52,7 +52,7 @@ export class AstraeaCoreDesktop implements I.AstraeaCore {
         })
     }
 
-    public static async init(config: I.CoreConfig, options?: I.AstraeaCoreOptions): Promise<I.AstraeaCore> {
+    public static init(config: I.CoreConfig, options?: I.AstraeaCoreOptions): I.AstraeaCore {
         if (AstraeaCoreDesktop.instance) {
             console.warn("AstraeaCore has already been initialized. Returning existing instance.");
             return AstraeaCoreDesktop.instance;
@@ -109,3 +109,6 @@ export class AstraeaCoreDesktop implements I.AstraeaCore {
     // EMPTY IMPLEMENTATIONS, everything here should be web only methods
     public setForceRelayMedia(force: boolean): void { }
 }
+
+// type check for static method init
+const _staticCheck: I.AstraeaCoreStatic = AstraeaCoreDesktop;

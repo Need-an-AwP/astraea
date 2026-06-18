@@ -40,7 +40,11 @@ class SessionManager {
         this.loginPromise = (async () => {
             try {
                 usePanelStore.getState().setShowWelcome(false);
-                this.engineInstance = await startEngine(authKey, hostname);
+                const engine = await startEngine(authKey, hostname);
+                if (!engine) {
+                    throw new Error("Engine initialization failed");
+                }
+                this.engineInstance = engine as AstraeaCoreDesktop | AstraeaCoreWeb;
                 return ;
             } finally {
                 this.loginPromise = null;

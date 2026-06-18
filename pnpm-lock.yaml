@@ -192,6 +192,10 @@ importers:
       zustand:
         specifier: ^5.0.12
         version: 5.0.12(@types/react@19.2.14)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5))
+    devDependencies:
+      '@types/dom-mediacapture-transform':
+        specifier: ^0.1.11
+        version: 0.1.11
 
   packages/core-web:
     dependencies:
@@ -201,6 +205,10 @@ importers:
       zustand:
         specifier: ^5.0.12
         version: 5.0.12(@types/react@19.2.14)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5))
+    devDependencies:
+      '@types/dom-mediacapture-transform':
+        specifier: ^0.1.11
+        version: 0.1.11
 
   packages/interface:
     dependencies:

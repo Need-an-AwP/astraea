@@ -7,52 +7,12 @@ import {
 } from '@/stores';
 
 
-export const resolveAuthKey = (): { authKey: string, source: 'url' | 'store' | 'default' } => {
-    // 1st priority: url param
-    const urlParams = new URLSearchParams(window.location.search);
-    const authKeyFromUrl = urlParams.get("authkey");
-    if (authKeyFromUrl) {
-        useAuthStore.getState().setAuthKey(authKeyFromUrl, 'url'); // update Store & IDB
-        return { authKey: authKeyFromUrl, source: 'url' };
-    }
-
-    // 2nd priority: idb store
-    const authKeyFromStore = useAuthStore.getState().authKey;
-    if (authKeyFromStore) {
-        return { authKey: authKeyFromStore, source: 'store' };
-    }
-
-    return { authKey: '', source: 'default' };
-}
-
-export const resolveHostname = (): { hostname: string, source: 'url' | 'store' | 'default' } => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const hostnameFromUrl = urlParams.get("hostname");
-    if (hostnameFromUrl) {
-        useAuthStore.getState().setHostname(hostnameFromUrl); // update Store & IDB
-        return { hostname: hostnameFromUrl, source: 'url' };
-    }
-
-    const hostnameFromStore = useAuthStore.getState().hostname;
-    if (hostnameFromStore) {
-        return { hostname: hostnameFromStore, source: 'store' };
-    }
-
-    return {
-        hostname: IS_DESKTOP ? "astraea-desktop" : "astraea-web",
-        source: 'default'
-    };
-}
-
-
-
-
-export const startEngine = async (authKey: string, hostname: string): Promise<AstraeaCoreDesktop | AstraeaCoreWeb> => {
+export const startEngine = async (authKey: string, hostname: string) => {
     try {
 
         const Engine = IS_DESKTOP ? AstraeaCoreDesktop : AstraeaCoreWeb;
 
-        const core = await Engine.init({
+        const core = Engine.init({
             hostname: hostname,
             authKey: authKey,
         }, {
@@ -98,8 +58,12 @@ export const startEngine = async (authKey: string, hostname: string): Promise<As
             });
         })
 
-        return core as AstraeaCoreDesktop | AstraeaCoreWeb;
+        return core;
     } catch (error) {
         console.error("Engine initialization failed: ", error);
     }
+}
+
+export const stopEngine = () => {
+
 }

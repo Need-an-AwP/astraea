@@ -1,0 +1,1 @@
+export { AstraeaCoreWeb } from './engine/index';

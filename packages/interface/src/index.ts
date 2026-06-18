@@ -20,10 +20,10 @@ export interface AstraeaCoreOptions {
 }
 
 
-export interface IAstraeaCore {
+export interface AstraeaCoreStatic {
     init: (
         config: CoreConfig,
         options?: AstraeaCoreOptions
-    ) => Promise<AstraeaCore>
+    ) => AstraeaCore
 }
 
