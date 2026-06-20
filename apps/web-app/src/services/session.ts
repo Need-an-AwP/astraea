@@ -1,5 +1,3 @@
-import { AstraeaCoreDesktop } from '@astraea/core-desktop';
-import { AstraeaCoreWeb } from "@astraea/core-web";
 import type { AstraeaCore } from '@astraea/interface';
 import { IS_DESKTOP } from '@/lib/env.ts';
 import { startEngine } from '@/services/engine';

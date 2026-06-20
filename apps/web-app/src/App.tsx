@@ -9,8 +9,8 @@ import TitleBar from '@/components/TitleBar'
 import Loading from '@/components/loading'
 
 
-
 function App() {
+    ////////////////// BOOTSTRAP //////////////////  
     const isLoading = !useAuthStore((state) => state.hasHydrated);
 
     const initializedRef = useRef(false)
@@ -19,6 +19,7 @@ function App() {
         sessionManager.initSession();
         initializedRef.current = true;
     }, [isLoading])
+    ////////////////// BOOTSTRAP //////////////////  
 
     return (
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">

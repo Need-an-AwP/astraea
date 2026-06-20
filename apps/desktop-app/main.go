@@ -21,7 +21,8 @@ func init() {
 	// and provide a strongly typed JS/TS API for them.
 	application.RegisterEvent[string]("time")
 
-	application.RegisterEvent[twn.Ts_notify]("ts_notify")
+	application.RegisterEvent[*twn.Ts_notify](twn.EventTsNotify)
+	application.RegisterEvent[struct{}](twn.EventRequestTsNotify) // for frontend positively request ts_notify
 
 	// events from twncore
 	application.RegisterEvent[twncore.ConnectionStatePayload](string(twncore.EventConnectionState))
@@ -35,12 +36,21 @@ func main() {
 
 	var app *application.App
 
-	twnService := twn.NewTWNService(func(name string, data ...any) bool {
-		if app != nil {
-			return app.Event.Emit(name, data...)
-		}
-		return false
-	})
+	// create service before app is created, using closure wrapper to avoid empty pointer error
+	twnService := twn.NewTWNService(
+		func(name string, data ...any) bool {
+			if app != nil {
+				return app.Event.Emit(name, data...)
+			}
+			return false
+		},
+		func(name string, callback func(event *application.CustomEvent)) func() {
+			if app != nil {
+				return app.Event.On(name, callback)
+			}
+			return func() {}
+		},
+	)
 
 	app = application.New(application.Options{
 		Name:        "astraea-desktop",

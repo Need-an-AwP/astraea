@@ -21,6 +21,10 @@ export class AstraeaCoreDesktop implements I.AstraeaCore {
     private tsStatusListener: I.Listener<I.TsStatus> | null = null;
 
 
+    // test
+    // private testInterval = setInterval(() => {
+    //     Events.Emit("r_ts_notify", {})
+    // }, 1000);
 
     private constructor(c: I.CoreConfig) {
         StartTWN({
@@ -31,6 +35,7 @@ export class AstraeaCoreDesktop implements I.AstraeaCore {
         })
 
         Events.On("ts_notify", (e) => {
+            if (!e.data) return;
             const { Notify: n, Status: s } = e.data;
 
             // transform n.State (from wails bindings) to I.NodeState (from tygo generation) and pass to nodeStateListener
@@ -41,7 +46,7 @@ export class AstraeaCoreDesktop implements I.AstraeaCore {
 
             // assert status (from wails bindings) as I.TsStatus (from tygo generation)
             s && this.tsStatusListener?.(s as I.TsStatus);
-            // console.log("[AstraeaCoreDesktop] ts_notify \nstatus:", s, "\nnotify:", n);
+            console.log("[AstraeaCoreDesktop] ts_notify \nstatus:", s, "\nnotify:", n);
 
             n.ErrMessage && this.errorListener?.(n.ErrMessage);
         });

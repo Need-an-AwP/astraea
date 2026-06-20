@@ -15,6 +15,7 @@ import (
 	"time"
 	"twncore"
 
+	"github.com/wailsapp/wails/v3/pkg/application"
 	"tailscale.com/ipn"
 	"tailscale.com/ipn/ipnstate"
 	"tailscale.com/tsnet"
@@ -67,6 +68,15 @@ type Ts_notify struct {
 	Status *ipnstate.Status
 }
 
+func (n *tsNode) updateSnapshot(notify ipn.Notify, status *ipnstate.Status) *Ts_notify {
+	snap := &Ts_notify{
+		Notify: notify,
+		Status: status,
+	}
+	n.tsNotifySnap = snap
+	return snap
+}
+
 func (n *tsNode) startBackendStateMonitor(initComplete chan struct{}) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -82,6 +92,12 @@ func (n *tsNode) startBackendStateMonitor(initComplete chan struct{}) {
 
 	coreStarted := false
 
+	// create ts_notify listener, return latest snapshot
+	n.on(EventRequestTsNotify, func(_ *application.CustomEvent) {
+		// log.Printf("r_ts_notify listener called by frontend")
+		n.emit(EventTsNotify, n.tsNotifySnap)
+	})
+
 	for {
 		notify, err := watcher.Next()
 		if err != nil {
@@ -91,11 +107,12 @@ func (n *tsNode) startBackendStateMonitor(initComplete chan struct{}) {
 
 		// pass the notify to fe directly
 		s, err := n.lc.Status(ctx)
-		if err != nil {	
+		if err != nil {
 			log.Printf("Failed to get status: %v", err)
 			continue
 		}
-		n.emit("ts_notify", Ts_notify{notify, s})
+		snap := n.updateSnapshot(notify, s)
+		n.emit(EventTsNotify, snap)
 
 		if notify.State != nil {
 			if *notify.State == ipn.Running && !coreStarted {
