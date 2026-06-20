@@ -1,5 +1,6 @@
 import { AstraeaCoreDesktop } from '@astraea/core-desktop';
 import { AstraeaCoreWeb } from "@astraea/core-web";
+import type { AstraeaCore } from '@astraea/interface';
 import { IS_DESKTOP } from '@/lib/env.ts';
 import {
     updateTailscaleStatus, setNodeState, addErrorLog,
@@ -7,17 +8,18 @@ import {
 } from '@/stores';
 
 
-export const startEngine = async (authKey: string, hostname: string) => {
+export const startEngine = (authKey: string, hostname: string): AstraeaCore | null => {
     try {
-
-        const Engine = IS_DESKTOP ? AstraeaCoreDesktop : AstraeaCoreWeb;
-
-        const core = Engine.init({
+        const initCoreConfig = {
             hostname: hostname,
             authKey: authKey,
-        }, {
+        }
+        const initCoreOptions = {}
 
-        });
+        // FOR GO TO DEFINITION OF DEFFERENT ENGINES
+        const core = IS_DESKTOP
+            ? AstraeaCoreDesktop.init(initCoreConfig, initCoreOptions)
+            : AstraeaCoreWeb.init(initCoreConfig, initCoreOptions);
 
         core.onTsStatusUpdate((status) => {
             // console.log(status);
@@ -61,6 +63,7 @@ export const startEngine = async (authKey: string, hostname: string) => {
         return core;
     } catch (error) {
         console.error("Engine initialization failed: ", error);
+        return null;
     }
 }
 

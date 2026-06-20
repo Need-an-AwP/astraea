@@ -91,7 +91,7 @@ func (n *tsNode) startBackendStateMonitor(initComplete chan struct{}) {
 
 		// pass the notify to fe directly
 		s, err := n.lc.Status(ctx)
-		if err != nil {
+		if err != nil {	
 			log.Printf("Failed to get status: %v", err)
 			continue
 		}

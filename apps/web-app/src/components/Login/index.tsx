@@ -21,7 +21,7 @@ export default function LoginPanel({ portalContainer }: { portalContainer?: HTML
     `
 
     const GoBackButton = () => (
-        <div className="group absolute top-2 left-2">
+        <div className="group absolute top-4 left-4">
             <Button
                 className="absolute left-0 top-0 cursor-pointer justify-start overflow-hidden 
                 px-0 transition-[width] duration-300 ease-out group-hover:w-60"
@@ -82,9 +82,11 @@ export default function LoginPanel({ portalContainer }: { portalContainer?: HTML
                                     </button>
                                 </>
                             ) : (
-                                <div className="flex flex-col items-center justify-center p-4">
+                                <div className="flex w-full flex-col items-stretch justify-center p-4">
                                     <GoBackButton />
-                                    {loginMethod === "account" ? <AccountLogin /> : <AuthkeyLogin />}
+                                    <div className="w-full">
+                                        {loginMethod === "account" ? <AccountLogin /> : <AuthkeyLogin />}
+                                    </div>
                                 </div>
                             )
                         }

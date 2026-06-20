@@ -1,57 +1,50 @@
 import { AstraeaCoreDesktop } from '@astraea/core-desktop';
 import { AstraeaCoreWeb } from "@astraea/core-web";
+import type { AstraeaCore } from '@astraea/interface';
 import { IS_DESKTOP } from '@/lib/env.ts';
-import { startEngine} from '@/services/engine';
+import { startEngine } from '@/services/engine';
 import {
     updateTailscaleStatus, setNodeState, addErrorLog,
-    updateConnectionStatus, usePanelStore, useAuthStore
+    updateConnectionStatus, usePanelStore, useAuthStore,
+    type DataSource
 } from '@/stores';
 
-type SessionLoginResult = Awaited<ReturnType<typeof startEngine>>;
 
 class SessionManager {
     private static instance: SessionManager | null = null;
-    private engineInstance: AstraeaCoreDesktop | AstraeaCoreWeb | null = null;
-    private loginPromise: Promise<SessionLoginResult | void> | null = null;
+    private engineInstance: AstraeaCore | null = null;
 
     private constructor() { }
 
-    public async initSession(): Promise<SessionLoginResult | void> {
+    public initSession() {
         const { authKey: storeAK, source: storeAKSource } = this.resolveAuthKey();
         const { hostname: storeHN, source: storeHNSource } = this.resolveHostname();
 
-        if (storeAKSource === 'default') {
+        console.log("authkey source: ", storeAKSource, '\nhostname source: ', storeHNSource, '\n');
+
+        if (storeAKSource === 'empty') {
             usePanelStore.getState().setShowWelcome(true);
             return;
         }
-        if (storeHNSource === 'default') {
+        if (storeHNSource === 'empty') {
             console.warn("authkey found, but hostname not found, using default hostname");
         }
 
         return this.login(storeAK, storeHN);
     }
 
-    public async login(authKey: string, hostname: string): Promise<SessionLoginResult | void> {
+    public login(authKey: string, hostname: string) {
+        // prevent multiple login
+        if (useAuthStore.getState().isLoggingIn) return;
+        useAuthStore.getState().setIsLoggingIn(true);
 
-        if (this.loginPromise) {
-            return this.loginPromise;
+        const engine = startEngine(authKey, hostname);
+        if (!engine) {
+            useAuthStore.getState().setIsLoggingIn(false);
+            throw new Error("Engine initialization failed");
         }
-
-        this.loginPromise = (async () => {
-            try {
-                usePanelStore.getState().setShowWelcome(false);
-                const engine = await startEngine(authKey, hostname);
-                if (!engine) {
-                    throw new Error("Engine initialization failed");
-                }
-                this.engineInstance = engine as AstraeaCoreDesktop | AstraeaCoreWeb;
-                return ;
-            } finally {
-                this.loginPromise = null;
-            }
-        })();
-
-        return this.loginPromise;
+        this.engineInstance = engine;
+        return;
     }
 
     public logout(): void {
@@ -69,7 +62,7 @@ class SessionManager {
         return SessionManager.instance;
     }
 
-    private resolveAuthKey(): { authKey: string, source: 'url' | 'store' | 'default' } {
+    private resolveAuthKey(): { authKey: string, source: DataSource } {
         // 1st priority: url param
         const urlParams = new URLSearchParams(window.location.search);
         const authKeyFromUrl = urlParams.get("authkey");
@@ -81,13 +74,13 @@ class SessionManager {
         // 2nd priority: idb store
         const authKeyFromStore = useAuthStore.getState().authKey;
         if (authKeyFromStore) {
-            return { authKey: authKeyFromStore, source: 'store' };
+            return { authKey: authKeyFromStore, source: 'idb' };
         }
 
-        return { authKey: '', source: 'default' };
+        return { authKey: '', source: 'empty' };
     }
 
-    private resolveHostname(): { hostname: string, source: 'url' | 'store' | 'default' } {
+    private resolveHostname(): { hostname: string, source: DataSource } {
         const urlParams = new URLSearchParams(window.location.search);
         const hostnameFromUrl = urlParams.get("hostname");
         if (hostnameFromUrl) {
@@ -97,12 +90,12 @@ class SessionManager {
 
         const hostnameFromStore = useAuthStore.getState().hostname;
         if (hostnameFromStore) {
-            return { hostname: hostnameFromStore, source: 'store' };
+            return { hostname: hostnameFromStore, source: 'idb' };
         }
 
         return {
             hostname: IS_DESKTOP ? "astraea-desktop" : "astraea-web",
-            source: 'default'
+            source: 'empty'
         };
     }
 }

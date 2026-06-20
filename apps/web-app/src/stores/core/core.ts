@@ -1,7 +1,9 @@
 import { create } from 'zustand';
 import type { TsStatus, NodeState } from '@astraea/interface';
 import { setTsPeer } from './peer'
-import { IS_DESKTOP } from '@/lib/env';
+import { useAuthStore } from '../app/auth';
+import { usePanelStore } from '../app/ui';
+
 
 interface CoreState {
     /** basic node state */
@@ -28,7 +30,13 @@ export const useError = () => useCoreStore((state) => state.error);
 
 // writeonly
 export const setNodeState = (state: NodeState | null) => {
+    console.log("node state changed: ", state);
     useCoreStore.setState({ nodeState: state });
+    // flag of finished logging in
+    if (state === 'Running') {
+        useAuthStore.getState().setIsLoggingIn(false);
+        usePanelStore.getState().setShowWelcome(false);
+    }
 };
 export const updateTailscaleStatus = (status: TsStatus) => {
     const { Self: tsSelf, Peer: tsPeer, ...rest } = status;

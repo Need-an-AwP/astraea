@@ -3,13 +3,26 @@ import validateTsAuthKey from "@/utils/validateTsAuthKey";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Info, LoaderCircle } from "lucide-react";
 import { RiDiceFill } from "react-icons/ri";
 import { useAuthStore } from "@/stores";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { sessionManager } from "@/services/session";
 
+
+const InfoIcon = ({ description }: { description: string }) => (
+    <Tooltip>
+        <TooltipTrigger>
+            <Info className="w-4 h-4 hover:text-muted-foreground" />
+        </TooltipTrigger>
+        <TooltipContent>
+            <p>{description}</p>
+        </TooltipContent>
+    </Tooltip>
+)
 
 export default function AuthkeyLogin() {
-    const { hostname, setHostname, authKey, setAuthKey, clearAuthKey } = useAuthStore();
+    const { hostname, setHostname, authKey, setAuthKey } = useAuthStore();
     const [authKeyInput, setAuthKeyInput] = useState(authKey ?? "");
     const [authKeyVisible, setAuthKeyVisible] = useState(false);
 
@@ -25,17 +38,20 @@ export default function AuthkeyLogin() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="space-y-2">
+        <div className="grid w-full gap-9">
+            <div className="grid gap-2">
                 <Label htmlFor="node-hostname" className="text-base font-medium">
                     identify device name
+                    <InfoIcon
+                        description="This is the name your device will use on the Tailscale network."
+                    />
                 </Label>
                 <div className="flex items-center space-x-2">
                     <Input
                         id="node-hostname"
                         value={hostname}
                         onChange={(e) => setHostname(e.target.value)}
-                        placeholder="Example: my-powerful-desktop"
+                        placeholder="Example: a-random-node-name"
                     />
                     <Button
                         size="icon"
@@ -47,14 +63,14 @@ export default function AuthkeyLogin() {
                         <RiDiceFill className='h-full' />
                     </Button>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                    This is the name your device will use on the Tailscale network.
-                </p>
             </div>
 
-            <div className="space-y-2">
+            <div className="grid gap-2">
                 <Label htmlFor="tailscale-auth-key" className="text-base font-medium">
                     Tailscale authentication key
+                    <InfoIcon
+                        description="authentication key for joining specific Tailscale network"
+                    />
                 </Label>
                 <div className="flex items-center space-x-2">
                     <Input
@@ -77,22 +93,26 @@ export default function AuthkeyLogin() {
                         {authKeyVisible ? <EyeOff className='h-full' /> : <Eye className='h-full' />}
                     </Button>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                    authentication key for joining Tailscale network
-                </p>
             </div>
 
-            <div className="w-full flex justify-center">
-                <Button
-                    className="p-4"
-                    disabled={!isValidKey || authKeyInput.length === 0}
-                    onClick={() => {
-                        setAuthKey(authKeyInput, 'idb');
-                    }}
-                >
-                    Login with Auth Key
-                </Button>
-            </div>
+            <Button
+                className="p-4 w-full cursor-pointer"
+                disabled={
+                    !isValidKey
+                    || authKeyInput.trim().length === 0
+                    || hostname.trim().length === 0
+                    || useAuthStore.getState().isLoggingIn
+                }
+                onClick={() => {
+                    setAuthKey(authKeyInput, 'idb');
+                    sessionManager.login(authKeyInput, hostname);
+                }}
+            >
+                {useAuthStore.getState().isLoggingIn
+                    ? <LoaderCircle className="w-4 h-4 animate-spin" />
+                    : "Login with Auth Key"
+                }
+            </Button>
         </div>
     )
 }

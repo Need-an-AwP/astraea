@@ -39,7 +39,7 @@ const SettingPopover = () => {
                 }
             }}
         >
-            <PopoverTrigger asChild>
+            <PopoverTrigger>
                 <Button
                     size="icon"
                     variant={`${isSettingOpen ? 'outline' : 'ghost'}`}
@@ -54,7 +54,6 @@ const SettingPopover = () => {
                     <TooltipProvider>
                         <Tooltip disableHoverableContent>
                             <TooltipTrigger
-                                asChild
                                 onFocus={(e) => e.preventDefault()}
                             >
                                 <Button
