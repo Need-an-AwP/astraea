@@ -1,5 +1,6 @@
 /// <reference path="../../bindings/github.com/wailsapp/wails/v3/internal/eventdata.d.ts" />
 // reference wails bindings event types
+// manual reference because there is no wails vite plugin in this package
 
 import * as I from "@astraea/interface";
 import { configStore } from "./configStore";
@@ -46,7 +47,7 @@ export class AstraeaCoreDesktop implements I.AstraeaCore {
 
             // assert status (from wails bindings) as I.TsStatus (from tygo generation)
             s && this.tsStatusListener?.(s as I.TsStatus);
-            console.log("[AstraeaCoreDesktop] ts_notify \nstatus:", s, "\nnotify:", n);
+            // console.log("[AstraeaCoreDesktop] ts_notify \nstatus:", s, "\nnotify:", n);
 
             n.ErrMessage && this.errorListener?.(n.ErrMessage);
         });

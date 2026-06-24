@@ -1,5 +1,7 @@
 package twn
 
+import "log"
+
 // expose `InitTWN` method to wails, which can be called in frontend to initialize the TWN node
 type TWNService struct {
 	node *tsNode
@@ -49,6 +51,8 @@ type TWNConfig struct {
 func (s *TWNService) StartTWN(p TWNConfig) {
 	// Already initialized
 	if s.node != nil {
+		s.emit(EventTsNotify, s.node.tsNotifySnap) // report latest status when init repeatedly
+		log.Printf("[TWNService] re-report status")
 		return
 	}
 	// internal initialization
