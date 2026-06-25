@@ -16,7 +16,7 @@ export default function MainView() {
 
     return (
         <div
-            className="flex-1 overflow-hidden relative"
+            className="relative flex-1 overflow-hidden"
             id="main-content"
             ref={mainContentRef}
         >
