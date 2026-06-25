@@ -1,27 +1,32 @@
-import { useCallback, useState } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 import { usePopover } from '@/stores'
 import MainResizablePanel from './components/mainResizablePanel'
 import LoginPanel from '@/components/Login'
+import { setPortalContainer } from '@/components/portalContainer'
 
 
 export default function MainView() {
     const { activePopover, closeAll } = usePopover()
-    const [mainContentEl, setMainContentEl] = useState<HTMLDivElement | null>(null)
-    const mainContentRef = useCallback((node: HTMLDivElement | null) => {
-        setMainContentEl(node)
-    }, [])
+    const mainContentRef = useRef<HTMLDivElement | null>(null)
 
+    useLayoutEffect(()=>{
+        setPortalContainer(mainContentRef.current)
+        return () => setPortalContainer(null)
+    },[])
 
     return (
-        <div className="flex-1 overflow-hidden relative" ref={mainContentRef} >
+        <div
+            className="flex-1 overflow-hidden relative"
+            id="main-content"
+            ref={mainContentRef}
+        >
             {/* blur layer */}
-            < div
+            <div
                 className={`absolute left-0 right-0 bottom-0 bg-black/10 backdrop-blur-sm z-40 
                                 transition-opacity duration-300
-                                ${activePopover ? "opacity-100" : "opacity-0 pointer-events-none"}`
-                }
+                                ${activePopover ? "opacity-100" : "opacity-0 pointer-events-none"}`}
                 onClick={() => {
-                    if (activePopover === 'tsLoading') return;
+                    if (activePopover === 'tsLoading') return
                     closeAll()
                 }}
             />
@@ -30,9 +35,9 @@ export default function MainView() {
             <MainResizablePanel />
 
             {/* login panel */}
-            <LoginPanel portalContainer={mainContentEl} />
+            <LoginPanel />
 
 
-        </div >
+        </div>
     )
 }

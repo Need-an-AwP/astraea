@@ -109,7 +109,7 @@ export default function AvatarSelector({ currentAvatar, setCurrentAvatar }: Avat
         <div className="flex flex-col gap-4 text-sm">
             <div className="flex flex-col items-center gap-2">
                 <Tooltip>
-                    <TooltipTrigger asChild>
+                    <TooltipTrigger>
                         <Avatar
                             className="flex-shrink-0 size-16 cursor-pointer"
                             onClick={generateRandomAvatarFromDiceBear}
@@ -144,7 +144,7 @@ export default function AvatarSelector({ currentAvatar, setCurrentAvatar }: Avat
                         onValueChange={setUnavatarPlatform}
                     >
                         <Tooltip>
-                            <TooltipTrigger asChild>
+                            <TooltipTrigger>
                                 <SelectTrigger autoFocus={false}>
                                     <SelectValue placeholder="Select a platform" />
                                 </SelectTrigger>
@@ -181,7 +181,7 @@ export default function AvatarSelector({ currentAvatar, setCurrentAvatar }: Avat
                 <div className="flex items-center gap-2">
                     <p>or use a link of any picture</p>
                     <Tooltip>
-                        <TooltipTrigger asChild>
+                        <TooltipTrigger>
                             <Info className="w-4 h-4" />
                         </TooltipTrigger>
                         <TooltipContent>

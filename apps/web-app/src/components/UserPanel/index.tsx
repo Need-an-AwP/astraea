@@ -1,3 +1,4 @@
+import Settings from "../Settings"
 import UserProfile from "./UserProfile"
 // import MicphoneSettings from "./MicphoneSettings"
 // import HeadphoneSettings from "./HeadphoneSettings"
@@ -13,7 +14,7 @@ export default function UserPanel() {
                     <UserProfile />
                 </div>
                 <div className="flex justify-end items-center">
-                    {/* <SettingPopover /> */}
+                    <Settings />
                 </div>
             </div>
 

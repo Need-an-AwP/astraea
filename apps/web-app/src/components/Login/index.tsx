@@ -12,7 +12,7 @@ import AuthkeyLogin from "./authkeyLogin";
 import AccountLogin from "./accountLogin";
 
 
-export default function LoginPanel({ portalContainer }: { portalContainer?: HTMLElement | null }) {
+export default function LoginPanel() {
     const [loginMethod, setLoginMethod] = useState<"account" | "authkey" | null>(null)
 
     const cardClassName = `
@@ -44,7 +44,6 @@ export default function LoginPanel({ portalContainer }: { portalContainer?: HTML
     return (
         <AlertDialog open={usePanelStore(state => state.showWelcome)}>
             <AlertDialogContent
-                portalContainer={portalContainer}
                 className="w-auto max-w-none"
                 size="auto"
             >

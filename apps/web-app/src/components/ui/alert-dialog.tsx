@@ -4,6 +4,8 @@ import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
+import { usePortalContainer } from "@/components/portalContainer"
+
 function AlertDialog({ ...props }: AlertDialogPrimitive.Root.Props) {
   return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />
 }
@@ -39,14 +41,12 @@ function AlertDialogOverlay({
 function AlertDialogContent({
   className,
   size = "default",
-  portalContainer,
   ...props
 }: AlertDialogPrimitive.Popup.Props & {
   size?: "default" | "sm" | "auto" // "auto" for removing `data-[size=default]:max-w-xs`
-  portalContainer?: HTMLElement | null // allow specifying portal container
 }) {
   return (
-    <AlertDialogPortal container={portalContainer ?? undefined}>
+    <AlertDialogPortal container={usePortalContainer()}>
       <AlertDialogOverlay />
       <AlertDialogPrimitive.Popup
         data-slot="alert-dialog-content"

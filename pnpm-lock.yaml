@@ -67,7 +67,7 @@ importers:
         version: 4.2.4(vite@8.0.10(@types/node@24.12.2)(esbuild@0.27.7)(jiti@2.6.1))
       '@wailsio/runtime':
         specifier: latest
-        version: 3.0.0-alpha.79
+        version: 3.0.0-alpha.94
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -182,7 +182,7 @@ importers:
         version: link:../interface
       '@wailsio/runtime':
         specifier: latest
-        version: 3.0.0-alpha.79
+        version: 3.0.0-alpha.94
       eventemitter3:
         specifier: ^5.0.4
         version: 5.0.4
@@ -1273,8 +1273,8 @@ packages:
       babel-plugin-react-compiler:
         optional: true
 
-  '@wailsio/runtime@3.0.0-alpha.79':
-    resolution: {integrity: sha512-NITzxKmJsMEruc39L166lbPJVECxzcbdqpHVqOOF7Cu/7Zqk/e3B/gNpkUjhNyo5rVb3V1wpS8oEgLUmpu1cwA==}
+  '@wailsio/runtime@3.0.0-alpha.94':
+    resolution: {integrity: sha512-jtOtyWLDLop9NfU373sA43NjyGntxDFUIHY6kzmArz5HGn66Ok3vl9N2nIyVs7cArvADxk/mBBZ9wXOX7R0NFA==}
 
   accepts@2.0.0:
     resolution: {integrity: sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng==}
@@ -3905,7 +3905,7 @@ snapshots:
       '@rolldown/plugin-babel': 0.2.3(@babel/core@7.29.0)(@babel/runtime@7.29.2)(rolldown@1.0.0-rc.17)(vite@8.0.10(@types/node@24.12.2)(esbuild@0.27.7)(jiti@2.6.1))
       babel-plugin-react-compiler: 1.0.0
 
-  '@wailsio/runtime@3.0.0-alpha.79': {}
+  '@wailsio/runtime@3.0.0-alpha.94': {}
 
   accepts@2.0.0:
     dependencies:

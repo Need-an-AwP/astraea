@@ -1,11 +1,21 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useLocalUserStateStore, usePopover } from '@/stores'
 import { useEffect, useState } from "react"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import {
+    Dialog, DialogHeader, DialogTitle,
+    DialogContent,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import {
+    Popover,
+    PopoverContent,
+    PopoverDescription,
+    PopoverHeader,
+    PopoverTitle,
+    PopoverTrigger,
+} from "@/components/ui/popover"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import AvatarSelector from "./AvatarSelector"
 import { LoaderCircle, X } from "lucide-react";
@@ -72,7 +82,7 @@ const UserProfile = () => {
                     <div className={`flex items-center gap-4 cursor-pointer select-none hover:bg-secondary/60 rounded-md p-2 
                     ${shouldShowAboveOverlay} 
                     ${isUserPopoverOpen && 'bg-secondary/80 ring ring-white/20'}`}>
-                        <Avatar className={`flex-shrink-0 `}>
+                        <Avatar className="shrink-0">
                             <AvatarImage src={initialized ? userState.userAvatar : ''} draggable={false} />
                             <AvatarFallback>
                                 <LoaderCircle className="w-4 h-4 animate-spin" />
@@ -86,10 +96,7 @@ const UserProfile = () => {
                     </div>
                 </div>
             </PopoverTrigger>
-            <PopoverContent
-                align="start"
-                className="w-96"
-            >
+            <PopoverContent className="w-96 sm:max-w-96">
                 <div className="relative flex flex-col gap-4">
                     {hasChanges() && (
                         <div className="absolute top-0 right-0">
@@ -104,28 +111,12 @@ const UserProfile = () => {
                                     </TooltipTrigger>
                                     <TooltipContent>
                                         Discard all changes<br />
-                                        Click outside popover to save changes
+                                        Click outside dialog to save changes
                                     </TooltipContent>
                                 </Tooltip>
                             </TooltipProvider>
                         </div>
                     )}
-                    <AvatarSelector currentAvatar={localAvatar} setCurrentAvatar={setLocalAvatar} />
-
-                    <Separator />
-
-                    <div className="flex flex-row gap-2">
-                        <Label htmlFor="username" className="whitespace-nowrap">
-                            User name
-                        </Label>
-                        <Input
-                            id="username"
-                            value={localUserName}
-                            onChange={(e) => {
-                                setLocalUserName(e.target.value)
-                            }}
-                        />
-                    </div>
                 </div>
             </PopoverContent>
         </Popover>
