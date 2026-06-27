@@ -80,7 +80,12 @@ func main() {
 		Height:           800,  //default value
 		BackgroundColour: application.NewRGB(27, 38, 54),
 		URL:              "/",
-
+		Windows: application.WindowsWindow{
+			Permissions: map[application.CoreWebView2PermissionKind]application.CoreWebView2PermissionState{
+				application.CoreWebView2PermissionKindMicrophone: application.CoreWebView2PermissionStateAllow,
+				application.CoreWebView2PermissionKindCamera:     application.CoreWebView2PermissionStateAllow,
+			},
+		},
 		// DEV ONLY
 		// InitialPosition: application.WindowXY,
 		// X:               -1000,

@@ -3,7 +3,7 @@ import { useRef, useEffect } from 'react'
 import { ThemeProvider } from "@/components/theme-provider"
 import MainView from './mainView'
 import { sessionManager } from './services/session'
-import { useAuthStore } from '@/stores'
+import { useAuthStore, usePreferenceStore, useLocalUserStateStore, initMediaDevices } from '@/stores'
 import { IS_DESKTOP } from './lib/env'
 import TitleBar from '@/components/TitleBar'
 import Loading from '@/components/loading'
@@ -11,12 +11,16 @@ import Loading from '@/components/loading'
 
 function App() {
     ////////////////// BOOTSTRAP //////////////////  
-    const isLoading = !useAuthStore((state) => state.hasHydrated);
+    const authHydrated = useAuthStore((state) => state.hasHydrated)
+    const userHydrated = useLocalUserStateStore((state) => state.initialized)
+    const preferenceHydrated = usePreferenceStore((state) => state.hasHydrated)
+    const isLoading = !authHydrated || !userHydrated || !preferenceHydrated
 
     const initializedRef = useRef(false)
     useEffect(() => {
         if (initializedRef.current || isLoading) return;
         sessionManager.initSession();
+        initMediaDevices();
         initializedRef.current = true;
     }, [isLoading])
     ////////////////// BOOTSTRAP //////////////////  

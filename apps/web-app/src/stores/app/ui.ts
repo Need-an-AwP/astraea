@@ -47,3 +47,28 @@ export const usePanelStore = create<panelState>((set, get) => ({
     setRightPanelHandle: ref => set({ rightPanelHandle: ref }),
     setShowWelcome: show => set({ showWelcome: show }),
 }))
+
+import { type SettingsTabId , settingsTabs} from '@/components/Settings/registry'
+
+interface SettingsDialogState {
+    open: boolean
+    activeTab: SettingsTabId
+
+    openSettings: (tab?: SettingsTabId) => void
+    closeSettings: () => void
+    setActiveTab: (tab: SettingsTabId) => void
+    onOpenChange: (open: boolean) => void
+}
+
+export const useSettingsDialog = create<SettingsDialogState>((set) => ({
+    open: false,
+    activeTab: settingsTabs[0],
+
+    openSettings: (tab) => set((state) => ({
+        open: true,
+        activeTab: tab ?? state.activeTab,
+    })),
+    closeSettings: () => set({ open: false }),
+    setActiveTab: (tab) => set({ activeTab: tab }),
+    onOpenChange: (open) => set({ open }),
+}))

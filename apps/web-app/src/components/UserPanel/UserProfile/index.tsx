@@ -1,11 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { useLocalUserStateStore, usePopover } from '@/stores'
+import { useLocalUserStateStore, usePopover, useSettingsDialog, useTsStatus } from '@/stores'
 import { useEffect, useState } from "react"
-import {
-    Dialog, DialogHeader, DialogTitle,
-    DialogContent,
-    DialogTrigger,
-} from "@/components/ui/dialog"
 import {
     Popover,
     PopoverContent,
@@ -16,15 +11,17 @@ import {
 } from "@/components/ui/popover"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import AvatarSelector from "./AvatarSelector"
-import { LoaderCircle, X } from "lucide-react";
+import { LoaderCircle, X, ChevronRight, CircleQuestionMark, LogOut, SquarePen } from "lucide-react";
+import { Label } from "@/components/ui/label"
 
 
 
 const UserProfile = () => {
     const { userState, updateSelfState, initialized } = useLocalUserStateStore()
     const { activePopover, togglePopover } = usePopover();
+    const [isPopoverOpen, setIsPopoverOpen] = useState(false)
+    const { openSettings } = useSettingsDialog();
+    const currentTailnet = useTsStatus()?.CurrentTailnet
     const isUserPopoverOpen = activePopover === 'user'
     const [localUserName, setLocalUserName] = useState(userState.userName)
     const [localAvatar, setLocalAvatar] = useState(userState.userAvatar)
@@ -73,15 +70,10 @@ const UserProfile = () => {
     const shouldShowAboveOverlay = `${(!activePopover || isUserPopoverOpen) && 'z-50'}`
 
     return (
-        <Popover
-            open={isUserPopoverOpen}
-            onOpenChange={handlePopoverOpenChange}
-        >
+        <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
             <PopoverTrigger>
                 <div className="flex">
-                    <div className={`flex items-center gap-4 cursor-pointer select-none hover:bg-secondary/60 rounded-md p-2 
-                    ${shouldShowAboveOverlay} 
-                    ${isUserPopoverOpen && 'bg-secondary/80 ring ring-white/20'}`}>
+                    <div className={`flex items-center gap-4 cursor-pointer select-none hover:bg-secondary/60 rounded-md p-2`}>
                         <Avatar className="shrink-0">
                             <AvatarImage src={initialized ? userState.userAvatar : ''} draggable={false} />
                             <AvatarFallback>
@@ -96,27 +88,64 @@ const UserProfile = () => {
                     </div>
                 </div>
             </PopoverTrigger>
-            <PopoverContent className="w-96 sm:max-w-96">
-                <div className="relative flex flex-col gap-4">
-                    {hasChanges() && (
-                        <div className="absolute top-0 right-0">
-                            <TooltipProvider>
-                                <Tooltip>
-                                    <TooltipTrigger
-                                        onFocus={(e) => e.preventDefault()}
-                                    >
-                                        <Button variant="destructive" size="icon" onClick={discardChanges}>
-                                            <X className="w-4 h-4" />
-                                        </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        Discard all changes<br />
-                                        Click outside dialog to save changes
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
-                        </div>
-                    )}
+            <PopoverContent align="start" className="p-4">
+                <div className="flex flex-col gap-4">
+                    <div className="flex flex-col items-center gap-2">
+                        <Avatar className="size-32 shrink-0">
+                            <AvatarImage src={initialized ? userState.userAvatar : ''} draggable={false} />
+                            <AvatarFallback>
+                                <LoaderCircle className="w-4 h-4 animate-spin" />
+                            </AvatarFallback>
+                        </Avatar>
+
+                        <Label className="font-bold text-xl">
+                            {userState.userName}
+                        </Label>
+                        <Popover>
+                            <PopoverTrigger >
+                                <div className="flex items-center gap-1 text-sm text-muted-foreground cursor-help hover:text-foreground transition-colors">
+                                    <span>@</span>
+                                    <span className="underline decoration-dashed underline-offset-4">{currentTailnet?.Name || 'tailnet'}</span>
+                                </div>
+                            </PopoverTrigger>
+                            <PopoverContent className="flex flex-col gap-3 w-auto">
+                                <div className="flex flex-col gap-1">
+                                    <Label className="text-xs text-muted-foreground">Tailnet Name</Label>
+                                    <span className="text-sm font-medium">{currentTailnet?.Name || 'Unknown'}</span>
+                                </div>
+                                {currentTailnet?.MagicDNSSuffix && (
+                                    <div className="flex flex-col gap-1">
+                                        <Label className="text-xs text-muted-foreground">MagicDNS Suffix</Label>
+                                        <span className="text-sm font-medium">{currentTailnet?.MagicDNSSuffix}</span>
+                                    </div>
+                                )}
+                                <div className="flex flex-col gap-1">
+                                    <Label className="text-xs text-muted-foreground">MagicDNS Status</Label>
+                                    <span className="text-sm font-medium">{currentTailnet?.MagicDNSEnabled ? 'Enabled' : 'Disabled'}</span>
+                                </div>
+                            </PopoverContent>
+                        </Popover>
+
+                    </div>
+
+                    <Button
+                        variant="outline"
+                        className="w-full cursor-pointer flex items-center justify-center gap-2"
+                        onClick={() => {
+                            openSettings('userProfile')
+                            setIsPopoverOpen(false)
+                        }}
+                    >
+                        <SquarePen />
+                        Edit Profile
+                    </Button>
+                    <Button
+                        variant="destructive"
+                        className="w-full cursor-pointer flex items-center justify-center gap-2"
+                    >
+                        <LogOut />
+                        Log Out
+                    </Button>
                 </div>
             </PopoverContent>
         </Popover>

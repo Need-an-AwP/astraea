@@ -1,50 +1,24 @@
-import { useMemo, useState } from "react"
-import { Settings as SettingsIcon, UserIcon, Mic, XIcon } from "lucide-react"
+import { Settings as SettingsIcon } from "lucide-react"
 import {
     Dialog, DialogTrigger,
     DialogContent, DialogHeader,
     DialogTitle
 } from "./settingDialog"
-import UserProfile from "./userProfile"
 import { Button } from "@/components/ui/button"
+import { useSettingsDialog } from "@/stores"
+import { settingsRegistry, settingsTabs } from "./registry"
 
 
 export default function Settings() {
-    const settingList = useMemo(
-        () => [
-            {
-                label: "User Profile",
-                icon: <UserIcon className="h-4 w-4" />,
-                component: <UserProfile />,
-            },
-            {
-                label: "Audio Settings",
-                icon: <Mic className="h-4 w-4" />,
-                component: <></>,
-            },
-            {
-                label: "Audio Settings 2",
-                icon: <Mic className="h-4 w-4" />,
-                component: <></>,
-            },
-            {
-                label: "Audio Settings 3",
-                icon: <Mic className="h-4 w-4" />,
-                component: <></>,
-            },
-        ],
-        [],
-    )
+    const { open, activeTab, onOpenChange, setActiveTab } = useSettingsDialog()
 
-    const [activeSetting, setActiveSetting] = useState(settingList[0].label)
-    const activeContent = settingList.find((setting) => setting.label === activeSetting)?.component
+    const ActivePanel = settingsRegistry[activeTab].component
 
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogTrigger render={<Button size="icon" variant="ghost" className="cursor-pointer" />}>
                 <SettingsIcon className="h-4 w-4" />
             </DialogTrigger>
-
 
             <DialogContent className="max-sm:h-full max-sm:w-full max-sm:rounded-none h-[calc(100vh-8rem)] w-[calc(100vw-8rem)] ">
                 <DialogHeader>
@@ -53,20 +27,25 @@ export default function Settings() {
 
                 <div className="flex min-h-0 flex-1 flex-row max-sm:flex-col">
                     <div className="flex w-56 shrink-0 flex-col border-r bg-muted/30 p-2 max-sm:w-full max-sm:border-r-0 max-sm:border-b">
-                        {settingList.map((setting) => (
-                            <Button
-                                key={setting.label}
-                                variant={setting.label === activeSetting ? "secondary" : "ghost"}
-                                className="cursor-pointer justify-start"
-                                onClick={() => setActiveSetting(setting.label)}
-                            >
-                                {setting.icon}
-                                {setting.label}
-                            </Button>
-                        ))}
+                        {settingsTabs.map((tabId) => {
+                            const { label, icon: TabIcon } = settingsRegistry[tabId]
+                            return (
+                                <Button
+                                    key={tabId}
+                                    variant={tabId === activeTab ? "secondary" : "ghost"}
+                                    className="cursor-pointer justify-start"
+                                    onClick={() => setActiveTab(tabId)}
+                                >
+                                    <TabIcon className="h-4 w-4" />
+                                    {label}
+                                </Button>
+                            )
+                        })}
                     </div>
 
-                    <div className="min-h-0 flex-1 overflow-auto p-4">{activeContent}</div>
+                    <div className="min-h-0 flex-1 overflow-auto p-4">
+                        {ActivePanel && <ActivePanel />}
+                    </div>
                 </div>
             </DialogContent>
         </Dialog>
