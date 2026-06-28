@@ -1,7 +1,7 @@
 import { initialAudioDevices } from './audio/audioDeviceStore'
-import { initializeAudioProcessing } from './audio/audioProcessingStore'
+import { initAudioEngine } from './audio/engine'
 
 export const initMediaDevices = () =>{
     initialAudioDevices();
-    initializeAudioProcessing()
+    initAudioEngine();
 }

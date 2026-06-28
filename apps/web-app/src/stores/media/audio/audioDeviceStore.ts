@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { useAudioProcessing } from './audioProcessingStore'
 import { usePreferenceStore } from '@/stores'
+import { AudioEngine } from './engine'
 
 type AudioDevice = {
     label: string;
@@ -49,19 +50,13 @@ const applySelectedInputDevice = (deviceId: string) => {
 const applySelectedOutputDevice = (deviceId: string) => {
     if (!deviceId) return;
 
-    const { destinationNode } = useAudioProcessing.getState();
-    if (destinationNode) {
-        const audioElement = destinationNode as unknown as HTMLAudioElement;
-        if (audioElement.setSinkId) {
-            audioElement.setSinkId(deviceId)
-                .then(() => {
-                    console.log('Output device set to:', deviceId);
-                })
-                .catch(error => {
-                    console.error('Error switching audio output device:', error);
-                });
-        }
-    }
+    AudioEngine.instance.setOutputDevice(deviceId)
+        .then(() => {
+            console.log('Output device set to:', deviceId);
+        })
+        .catch(error => {
+            console.error('Error switching audio output device:', error);
+        });
 
     document.querySelectorAll('audio').forEach(audio => {
         if (audio.setSinkId) {
