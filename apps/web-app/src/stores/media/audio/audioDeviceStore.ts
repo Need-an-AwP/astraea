@@ -1,9 +1,8 @@
 import { create } from 'zustand'
-import { useAudioProcessing } from './audioProcessingStore'
 import { usePreferenceStore } from '@/stores'
-import { AudioEngine } from './engine'
+import { AudioEngine } from './AudioEngine'
 
-type AudioDevice = {
+export type AudioDevice = {
     label: string;
     deviceId: string;
     groupId: string;
@@ -22,34 +21,16 @@ interface AudioDeviceState {
 }
 
 const applySelectedInputDevice = (deviceId: string) => {
-    if (!deviceId) return;
-
-    const { sourceNode, localOriginalStream, ctx_main, gainNode, setState } = useAudioProcessing.getState();
-    if (sourceNode && localOriginalStream && gainNode) {
-        stopAllTracks(localOriginalStream);
-        navigator.mediaDevices.getUserMedia({
-            audio: { deviceId: deviceId },
-            video: false
+    AudioEngine.instance.setInputDevice(deviceId)
+        .then(() => {
+            console.log('Input device set to:', deviceId);
         })
-            .then((newlocalStream) => {
-                sourceNode.disconnect()
-                const new_sourceNode = ctx_main.createMediaStreamSource(newlocalStream)
-                new_sourceNode.connect(gainNode)
-                setState({
-                    sourceNode: new_sourceNode,
-                    localOriginalStream: newlocalStream
-                })
-                console.log('new input device:', deviceId);
-            })
-            .catch(error => {
-                console.error('Error switching audio input device:', error);
-            });
-    }
+        .catch(error => {
+            console.error('Error switching audio input device:', error);
+        });
 };
 
 const applySelectedOutputDevice = (deviceId: string) => {
-    if (!deviceId) return;
-
     AudioEngine.instance.setOutputDevice(deviceId)
         .then(() => {
             console.log('Output device set to:', deviceId);

@@ -40,6 +40,7 @@ export class AudioEngine {
         this.micMuteNode = ctx.createGain();
         this.micNoiseReductionNode = ctx.createGain();
         this.micAnalyserNode = ctx.createAnalyser();
+        this.micAnalyserNode.fftSize = 256;
         this.micDestinationNode = ctx.createMediaStreamDestination();
         this.sourceNode.connect(this.micGainNode);
         this.micGainNode.connect(this.micMuteNode);
@@ -52,21 +53,19 @@ export class AudioEngine {
         this.cpaGainNode = ctx.createGain();
         this.cpaMuteNode = ctx.createGain();
         this.cpaAnalyserNode = ctx.createAnalyser();
+        this.cpaAnalyserNode.fftSize = 256;
         this.cpaDestinationNode = ctx.createMediaStreamDestination();
         this.cpaSourceNode.connect(this.cpaGainNode);
         this.cpaGainNode.connect(this.cpaMuteNode);
         this.cpaMuteNode.connect(this.cpaAnalyserNode);
         this.cpaAnalyserNode.connect(this.cpaDestinationNode);
-        // test only
-        const oscillator = ctx.createOscillator();
-        oscillator.type = "square";
-        oscillator.frequency.setValueAtTime(3000, ctx.currentTime); // value in hertz
-        oscillator.start();
-        oscillator.connect(this.cpaGainNode);
+
+        
 
         // merge
         this.mergerNode = ctx.createGain();
         this.destinationAnalyserNode = ctx.createAnalyser();
+        this.destinationAnalyserNode.fftSize = 256;
         this.destination = ctx.createMediaStreamDestination();
         this.micAnalyserNode.connect(this.mergerNode);
         this.cpaAnalyserNode.connect(this.mergerNode);
@@ -75,12 +74,58 @@ export class AudioEngine {
 
         this.playbackElement = new Audio();
         this.playbackElement.srcObject = this.destination.stream;
-        this.playbackElement.muted = true;
-        this.playbackElement.autoplay = true;
+        this.playbackElement.muted = false;
+        this.playbackElement.autoplay = false;
+    }
+
+    public startPlayback() {
+        if (!this.playbackElement) {
+            console.error('Playback element is not initialized');
+            return;
+        }
+        this.playbackElement.play();
+    }
+
+    public stopPlayback() {
+        if (!this.playbackElement) {
+            console.error('Playback element is not initialized');
+            return;
+        }
+        this.playbackElement.pause();
+    }
+
+    public async setInputDevice(deviceId: string) {
+        if (!deviceId) {
+            console.error('empty device ID is not allowed');
+            return;
+        }
+        if (!this.ctx || !this.sourceNode || !this.micGainNode) {
+            console.error('Main AudioContext or nodes are not initialized');
+            return;
+        }
+
+        try {
+            const newlocalStream = await navigator.mediaDevices.getUserMedia({
+                audio: { deviceId: deviceId },
+                video: false
+            })
+
+            this.sourceNode.disconnect();
+            // TODO: stop previous input stream
+
+            this.sourceNode = this.ctx.createMediaStreamSource(newlocalStream);
+            this.sourceNode.connect(this.micGainNode);
+        } catch (error) {
+            console.error('Error setting input device:', error);
+            return;
+        }
     }
 
     public async setOutputDevice(deviceId: string) {
-        if (!deviceId) return;
+        if (!deviceId) {
+            console.error('empty device ID is not allowed');
+            return;
+        }
         if (!this.playbackElement) {
             console.error('Playback element is not initialized');
             return;
@@ -120,6 +165,16 @@ export class AudioEngine {
 
         return this.cpaDestinationNode?.stream ?? null;
     }
+
+    public getDestinationByteFrequencyData() {
+        if (!this.ctx || !this.destinationAnalyserNode) return null;
+
+        const dataArray = new Uint8Array(this.destinationAnalyserNode.frequencyBinCount);
+        this.destinationAnalyserNode.getByteFrequencyData(dataArray);
+
+        return dataArray;
+    }
+
 }
 
 

@@ -10,15 +10,20 @@ import { settingsRegistry, settingsTabs } from "./registry"
 
 
 export default function Settings() {
-    const { open, activeTab, onOpenChange, setActiveTab } = useSettingsDialog()
+    const { open, activeTab, onOpenChange, setActiveTab, openSettings } = useSettingsDialog()
 
     const ActivePanel = settingsRegistry[activeTab].component
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogTrigger render={<Button size="icon" variant="ghost" className="cursor-pointer" />}>
+            <Button
+                size="icon"
+                variant="ghost"
+                className="cursor-pointer"
+                onClick={() => openSettings('audioSettings')}
+            >
                 <SettingsIcon className="h-4 w-4" />
-            </DialogTrigger>
+            </Button>
 
             <DialogContent className="max-sm:h-full max-sm:w-full max-sm:rounded-none h-[calc(100vh-8rem)] w-[calc(100vw-8rem)] ">
                 <DialogHeader>

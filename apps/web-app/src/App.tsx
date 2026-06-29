@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import MainView from './mainView'
 import { sessionManager } from './services/session'
 import { useAuthStore, usePreferenceStore, useLocalUserStateStore, initMediaDevices } from '@/stores'
+import { initAudioEngine } from '@/AudioEngine'
 import { IS_DESKTOP } from './lib/env'
 import TitleBar from '@/components/TitleBar'
 import Loading from '@/components/loading'
@@ -20,7 +21,8 @@ function App() {
     useEffect(() => {
         if (initializedRef.current || isLoading) return;
         sessionManager.initSession();
-        initMediaDevices();
+        initMediaDevices();// deprecated
+        initAudioEngine()
         initializedRef.current = true;
     }, [isLoading])
     ////////////////// BOOTSTRAP //////////////////  

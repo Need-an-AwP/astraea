@@ -1,4 +1,5 @@
-import { useAudioDeviceStore, useAudioProcessing } from '@/stores'
+import { useEffect, useState } from 'react';
+import { useAudioDeviceStore } from '@/stores'
 import {
     Select,
     SelectContent,
@@ -8,7 +9,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Label } from '../ui/label'
+import { Button } from '@/components/ui/button'
+import { Ear, Square, Info } from 'lucide-react'
+import { Label } from '@/components/ui/label'
+import { AudioEngine } from '@/AudioEngine'
+import Spectrum from '@/components/Spectrum'
 
 
 export default function AudioSettings() {
@@ -17,6 +22,15 @@ export default function AudioSettings() {
         outputDevices, selectedOutput, setSelectedOutput,
     } = useAudioDeviceStore()
 
+    const [isPlayback, setIsPlayback] = useState(false);
+
+    useEffect(() => {
+        if (isPlayback) {
+            AudioEngine.instance.startPlayback()
+        } else {
+            AudioEngine.instance.stopPlayback()
+        }
+    }, [isPlayback])
 
     return (
         <div className="w-full h-full flex justify-center">
@@ -41,6 +55,8 @@ export default function AudioSettings() {
                     </SelectContent>
                 </Select>
 
+                <Spectrum />
+
                 <Label>Output Device</Label>
                 <Select value={selectedOutput} onValueChange={(value) => setSelectedOutput(value ?? '')}>
                     <SelectTrigger className="w-full">
@@ -60,6 +76,32 @@ export default function AudioSettings() {
                         ))}
                     </SelectContent>
                 </Select>
+
+                <div className="flex flex-col gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2 cursor-pointer w-fit"
+                        onClick={() => setIsPlayback(!isPlayback)}
+                    >
+                        {isPlayback ? (
+                            <>
+                                <Square className="w-4 h-4" />
+                                Stop Sidetone
+                            </>
+                        ) : (
+                            <>
+                                <Ear className="w-4 h-4" />
+                                Enable Sidetone
+                            </>
+                        )}
+                    </Button>
+
+                    <p className="text-xs text-muted-foreground">
+                        <Info className="w-4 h-4 inline-block mr-1" />
+                        It is highly recommended to use headphones when testing audio sidetone
+                    </p>
+                </div>
             </div>
         </div>
     )
