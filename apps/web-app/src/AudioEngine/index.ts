@@ -4,6 +4,7 @@ import {
     OutputPipeline
 } from "./pipelines";
 import { AudioPlayback } from "./AudioPlayback";
+import { AudioDevices } from "./AudioDevices";
 
 export class AudioEngine {
     private static _instance: AudioEngine | null = null;
@@ -17,6 +18,7 @@ export class AudioEngine {
     private cpaInputPipeline: CpaInputPipeline;
     private outputPipeline: OutputPipeline;
     private audioPlayback: AudioPlayback;
+    private audioDevices: AudioDevices | null = null;
 
     constructor() {
         this.ctx = new AudioContext();
@@ -29,8 +31,11 @@ export class AudioEngine {
         this.audioPlayback = new AudioPlayback(this.outputPipeline.getStream());
     }
 
-    public init() {
-
+    public async init() {
+        this.audioDevices = await AudioDevices.init();
+        this.audioDevices.setOnInputChanged((stream) => {
+            stream && this.micInputPipeline.setInputStream(stream);
+        });
     }
 
     public startPlayback(){
@@ -45,12 +50,13 @@ export class AudioEngine {
         return this.outputPipeline.getByteFrequencyData();
     }
 
-    public setInputDevice(deviceId: string){
-        
+    public async setInputDevice(deviceId: string){
+        await this.audioDevices?.setSelectedInput(deviceId);
     }
 
-    public setOutputDevice(deviceId: string){
-        this.audioPlayback.setOutputDevice(deviceId);
+    public async setOutputDevice(deviceId: string){
+        await this.audioPlayback.setOutputDevice(deviceId);
+        await this.audioDevices?.setSelectedOutput(deviceId);
     }
 }
 

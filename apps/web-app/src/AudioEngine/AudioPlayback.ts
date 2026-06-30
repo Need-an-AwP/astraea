@@ -32,15 +32,13 @@ export class AudioPlayback {
         this.element.srcObject = newStream;
     }
 
-    public setOutputDevice(deviceId: string){
+    public async setOutputDevice(deviceId: string){
         if (!deviceId) return;
 
-        this.element.setSinkId(deviceId)
-            .then(() => {
-                console.log('Output device set to:', deviceId);
-            })
-            .catch((error) => {
-                console.error('Failed to set output device:', error);
-            });
+        try {
+            await this.element.setSinkId(deviceId);
+        } catch (error) {
+            console.error('Failed to set output device:', error);
+        }
     }
 }

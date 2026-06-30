@@ -20,4 +20,12 @@ export class MicInputPipeline extends PipelineBase {
         this.noiseReductionNode.connect(this.analyserNode);
         this.analyserNode.connect(this.destinationNode);
     }
+
+    public setInputStream(stream: MediaStream) {
+        if (this.sourceNode) {
+            this.sourceNode.disconnect();
+        }
+        this.sourceNode = this.ctx.createMediaStreamSource(stream);
+        this.sourceNode.connect(this.gainNode);
+    }
 }

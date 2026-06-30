@@ -1,12 +1,17 @@
 import { useAudioDeviceStore, usePreferenceStore, type AudioDevice } from "@/stores"
 
 export class AudioDevices {
+    private static _instance: AudioDevices | null = null;
+
     private inputDevices: AudioDevice[] = [];
     private outputDevices: AudioDevice[] = [];
     private selectedInput: string = '';
     private selectedOutput: string = '';
     private onInputChanged: ((stream: MediaStream | null) => void) | null = null;
     private inputStream: MediaStream | null = null;
+    private isDeviceChangeListening: boolean = false;
+
+    private constructor() { }
 
     /**
      * provide a callback when input stream changed
@@ -16,32 +21,37 @@ export class AudioDevices {
         this.onInputChanged = callback;
     }
 
-    public async init() {
-        const prefState = usePreferenceStore.getState();
-        const storeInputDeviceId = prefState.audioInputDeviceId;
-        const storeOutputDeviceId = prefState.audioOutputDeviceId;
+    public static async init(): Promise<AudioDevices> {
+        if (!AudioDevices._instance) {
+            AudioDevices._instance = new AudioDevices();
+        }
+        const instance = AudioDevices._instance;
 
         try {
-            await this.enumerateDevices();
-            this.selectedInput = this.resolveDeviceId(this.inputDevices, storeInputDeviceId);
-            this.selectedOutput = this.resolveDeviceId(this.outputDevices, storeOutputDeviceId);
-            console.log('inputDevices', this.inputDevices, '\noutputDevices', this.outputDevices, '\nresolvedInputId', this.selectedInput, '\nresolvedOutputId', this.selectedOutput);
+            const { inputList, outputList } = await instance.enumerateDevices();
+            const { inputDeviceId, outputDeviceId } = instance.resolveSelectedDevices();
+
+            useAudioDeviceStore.setState({
+                inputDevices: inputList,
+                outputDevices: outputList,
+                selectedInput: inputDeviceId,
+                selectedOutput: outputDeviceId,
+            });
+
+            console.log('inputDevices', inputList,
+                '\noutputDevices', outputList,
+                '\nresolvedInputId', inputDeviceId,
+                '\nresolvedOutputId', outputDeviceId);
+
+            instance.ensureDeviceChangeListener();
         } catch (error) {
             console.error("Error initializing audio devices:", error);
         }
 
-
-        // need request permission to access media devices on web
-        // navigator.mediaDevices.getUserMedia({ audio: true, video: true })
-        //     .then(stream => {
-
-        //         stream.getTracks().forEach(track => track.stop());
-        //     }).catch(error => {
-        //         console.error("Error accessing media devices:", error);
-        //     })
+        return instance;
     }
 
-    public async enumerateDevices() {
+    public async enumerateDevices(): Promise<{ inputList: AudioDevice[], outputList: AudioDevice[] }> {
         try {
             const devices = await navigator.mediaDevices.enumerateDevices();
 
@@ -57,43 +67,108 @@ export class AudioDevices {
 
             this.inputDevices = inputList;
             this.outputDevices = outputList;
+
+            return { inputList, outputList };
+
         } catch (error) {
             console.error('Error enumerating devices:', error);
             this.inputDevices = [];
             this.outputDevices = [];
+
+            return { inputList: [], outputList: [] };
         }
     }
 
-    private resolveDeviceId(list: AudioDevice[], storeId: string) {
+    private resolveSelectedDevices(): { inputDeviceId: string, outputDeviceId: string } {
+        const prefState = usePreferenceStore.getState();
+        const storeInputDeviceId = prefState.audioInputDeviceId;
+        const storeOutputDeviceId = prefState.audioOutputDeviceId;
+
+        return {
+            inputDeviceId: this.resolveDeviceId(this.inputDevices, storeInputDeviceId),
+            outputDeviceId: this.resolveDeviceId(this.outputDevices, storeOutputDeviceId),
+        };
+    }
+
+    private resolveDeviceId(list: AudioDevice[], storeId: string): string {
         return (storeId && list.find(i => i.deviceId === storeId)?.deviceId)
             || list.find(i => i.deviceId === 'default')?.deviceId
-            || list[0]?.deviceId;
+            || list[0]?.deviceId
+            || '';
     }
 
-    public setSelectedInput(deviceId: string) {
-        if (!deviceId) return;
-        this.selectedInput = deviceId;
-        // update store
-
-        // stop previous stream
-        // create a new stream
+    private ensureDeviceChangeListener() {
+        if (this.isDeviceChangeListening) return;
+        navigator.mediaDevices.addEventListener('devicechange', this.handleDeviceChange);
+        this.isDeviceChangeListening = true;
     }
 
-    public setSelectedOutput(deviceId: string) {
-        if (!deviceId) return;
-
-        this.selectedOutput = deviceId;
-        // update store
-
-        // update element sink id
-        document.querySelectorAll('audio').forEach(audio => {
-            if (audio.setSinkId) {
-                audio.setSinkId(deviceId)
-                    .catch(error => {
-                        console.error('Error setting sink id for audio element:', error);
-                    });
-            }
+    private async handleDeviceChange() {
+        // only update list now
+        const { inputList, outputList } = await this.enumerateDevices();
+        useAudioDeviceStore.setState({
+            inputDevices: inputList,
+            outputDevices: outputList,
         });
     }
+
+    public async setSelectedInput(deviceId: string) {
+        if (!deviceId) return;
+        const audioConstraints: MediaTrackConstraints = {
+            deviceId: deviceId,
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+        }
+
+        try {
+            // create a new stream
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints }); // need request permission to access media devices on web
+
+            // stop previous stream only after new stream is ready
+            if (this.inputStream) {
+                this.inputStream.getTracks().forEach(track => track.stop());
+            }
+            this.inputStream = stream;
+            this.selectedInput = deviceId;
+            this.onInputChanged?.(this.inputStream);
+
+            // update store and preference only after switching succeeds
+            useAudioDeviceStore.setState({ selectedInput: deviceId });
+            const prefState = usePreferenceStore.getState();
+            if (prefState.audioInputDeviceId !== deviceId) {
+                prefState.setAudioInputDeviceId(deviceId);
+            }
+        } catch (error) {
+            console.error('Error accessing audio input device:', error);
+        }
+    }
+
+    public async setSelectedOutput(deviceId: string) {
+        if (!deviceId) return;
+        const audios = Array.from(document.querySelectorAll('audio'));
+
+        try {
+            // consider switch successful only when all setSinkId-capable elements succeed
+            await Promise.all(
+                audios.map(async (audio) => {
+                    if (!audio.setSinkId) return;
+                    await audio.setSinkId(deviceId);
+                })
+            );
+
+            this.selectedOutput = deviceId;
+
+            // update store and preference only after switching succeeds
+            useAudioDeviceStore.setState({ selectedOutput: deviceId });
+            const prefState = usePreferenceStore.getState();
+            if (prefState.audioOutputDeviceId !== deviceId) {
+                prefState.setAudioOutputDeviceId(deviceId);
+            }
+        } catch (error) {
+            console.error('Error setting output audio device:', error);
+        }
+    }
+
 
 }

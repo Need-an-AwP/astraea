@@ -27,6 +27,6 @@ export class CpaInputPipeline extends PipelineBase {
         lfoGain.gain.setValueAtTime(800, ctx.currentTime);
         lfo.connect(lfoGain);
         lfoGain.connect(oscillator.frequency);
-        oscillator.connect(this.gainNode);
+        // oscillator.connect(this.gainNode);
     }
 }
