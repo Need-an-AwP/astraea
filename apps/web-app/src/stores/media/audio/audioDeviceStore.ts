@@ -29,13 +29,11 @@ export const useAudioDeviceStore = create<AudioDeviceState>((set) => ({
     setOutputDevices: (devices: AudioDevice[]) => set({ outputDevices: devices }),
     setSelectedInput: (deviceId: string) => {
         // won't write store here, state will be updated by AudioEngine if change succeeds
-        AudioEngine.instance.setInputDevice(deviceId)
-        console.log('input device changed:', deviceId);
+        AudioEngine.devices.setInputDevice(deviceId)
     },
     setSelectedOutput: (deviceId: string) => {
         // won't write store here, state will be updated by AudioEngine if change succeeds
-        AudioEngine.instance.setOutputDevice(deviceId)
-        console.log("output device changed:", deviceId);
+        AudioEngine.devices.setOutputDevice(deviceId)
     },
 }));
 

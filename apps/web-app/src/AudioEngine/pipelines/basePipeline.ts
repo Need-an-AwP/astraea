@@ -1,9 +1,12 @@
+import { AudioDataPusher } from "../AudioDataPusher";
+
 export abstract class PipelineBase {
     protected ctx: AudioContext;
     protected gainNode: GainNode;
     protected muteNode: GainNode;
     protected analyserNode: AnalyserNode;
     protected destinationNode: MediaStreamAudioDestinationNode;
+    protected dataPusher: AudioDataPusher;
 
     constructor(ctx: AudioContext) {
         this.ctx = ctx;
@@ -12,6 +15,11 @@ export abstract class PipelineBase {
         this.analyserNode = ctx.createAnalyser();
         this.analyserNode.fftSize = 256;
         this.destinationNode = ctx.createMediaStreamDestination();
+
+        this.dataPusher = new AudioDataPusher({
+            getByteFrequencyData: this.analyserNode.getByteFrequencyData.bind(this.analyserNode),
+            frequencyBinCount: this.analyserNode.frequencyBinCount
+        });
     }
 
     protected connectOutputChain() {
@@ -40,5 +48,13 @@ export abstract class PipelineBase {
 
     public getOutputNode() {
         return this.analyserNode;
+    }
+
+    public subscribeData(worker: Worker) {
+        this.dataPusher.subscribe(worker);
+    }
+
+    public unsubscribeData(worker: Worker) {
+        this.dataPusher.unsubscribe(worker);
     }
 }

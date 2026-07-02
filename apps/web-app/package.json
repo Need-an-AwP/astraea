@@ -22,6 +22,7 @@
     "@wailsio/runtime": "latest",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "comlink": "^4.4.2",
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.42.0",
     "idb-keyval": "^6.2.4",

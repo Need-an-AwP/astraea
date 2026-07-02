@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Ear, Square, Info } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { AudioEngine } from '@/AudioEngine'
-import Spectrum from '@/components/Spectrum'
+import Spectrum from '@/components/Spectrums'
 
 
 export default function AudioSettings() {
@@ -26,9 +26,9 @@ export default function AudioSettings() {
 
     useEffect(() => {
         if (isPlayback) {
-            AudioEngine.instance.startPlayback()
+            AudioEngine.playback.start()
         } else {
-            AudioEngine.instance.stopPlayback()
+            AudioEngine.playback.stop()
         }
     }, [isPlayback])
 
@@ -55,7 +55,7 @@ export default function AudioSettings() {
                     </SelectContent>
                 </Select>
 
-                <Spectrum />
+                <Spectrum className="w-full h-50 rounded-md" />
 
                 <Label>Output Device</Label>
                 <Select value={selectedOutput} onValueChange={(value) => setSelectedOutput(value ?? '')}>
